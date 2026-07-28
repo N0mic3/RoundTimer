@@ -1,4 +1,4 @@
-package com.example.roundtimer.ui.screens
+package com.example.roundtimer.ui.start
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -15,18 +15,18 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.roundtimer.model.RoundInfoModel
+import com.example.roundtimer.ui.navigation.RoundInfoModel
 import com.example.roundtimer.ui.components.DurationPicker
-import com.example.roundtimer.ui.viewmodel.StartViewModel
+import com.example.roundtimer.ui.start.StartViewModel
 
 @Composable
 fun StartScreen(
     modifier: Modifier = Modifier,
     onClick : (RoundInfoModel) -> Unit,
-    startViewModel: StartViewModel = viewModel()
+    startViewModel: StartViewModel,
 ) {
     val quoteUiState = startViewModel.stateUiState.collectAsStateWithLifecycle()
-    val roundInfoModel = RoundInfoModel(
+    var roundInfoModel = RoundInfoModel(
         workDuration = 5,
         restDuration = 5,
         roundCount = 1
@@ -59,7 +59,9 @@ fun StartScreen(
             step = 5,
             units = "Seconds",
             onClick = {
-                roundInfoModel.workDuration = it
+                roundInfoModel = roundInfoModel.copy(
+                    workDuration = it
+                )
             }
         )
         DurationPicker(
@@ -69,7 +71,9 @@ fun StartScreen(
             step = 5,
             units = "Seconds",
             onClick = {
-                roundInfoModel.restDuration = it
+                roundInfoModel = roundInfoModel.copy(
+                    restDuration = it
+                )
             }
         )
         DurationPicker(
@@ -79,7 +83,9 @@ fun StartScreen(
             step = 1,
             units = "Rounds",
             onClick = {
-                roundInfoModel.roundCount = it
+                roundInfoModel = roundInfoModel.copy(
+                    roundCount = it
+                )
             }
         )
         Button(

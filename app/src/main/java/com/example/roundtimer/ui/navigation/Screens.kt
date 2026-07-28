@@ -1,6 +1,7 @@
-package com.example.roundtimer.model
+package com.example.roundtimer.ui.navigation
 
 import androidx.navigation3.runtime.NavKey
+import com.example.roundtimer.ui.navigation.RoundInfoModel
 import kotlinx.serialization.Serializable
 
 @Serializable

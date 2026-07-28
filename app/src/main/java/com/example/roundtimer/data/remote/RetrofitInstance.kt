@@ -10,13 +10,13 @@ object RetrofitInstance {
     private val json = Json {
         ignoreUnknownKeys = true
     }
-    val quoteAPiService: QuoteAPiService by lazy {
+    val quoteAPiService: QuoteApiService by lazy {
         Retrofit.Builder()
             .baseUrl(BASE_URL)
             .addConverterFactory(
                 json.asConverterFactory("application/json".toMediaType())
             )
             .build()
-            .create(QuoteAPiService::class.java)
+            .create(QuoteApiService::class.java)
     }
 }

@@ -1,15 +1,28 @@
-package com.example.roundtimer.ui.viewmodel
+package com.example.roundtimer.ui.start
 
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import com.example.roundtimer.data.repository.QuoteRepository
-import com.example.roundtimer.model.QuoteUiState
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
+import com.example.roundtimer.domain.usecase.QuoteUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class StartViewModel : ViewModel() {
-    private val quoteRepository = QuoteRepository()
+class StartViewModel(
+    private val quoteUseCase: QuoteUseCase
+) : ViewModel() {
+
+    companion object {
+        fun factory(
+            quoteUseCase: QuoteUseCase
+        ): ViewModelProvider.Factory = viewModelFactory {
+            initializer {
+                StartViewModel(quoteUseCase)
+            }
+        }
+    }
 
     private val _startUiState = MutableStateFlow(QuoteUiState())
     val stateUiState = _startUiState.asStateFlow()
@@ -21,7 +34,7 @@ class StartViewModel : ViewModel() {
     fun getQuoteForTheDay() {
         viewModelScope.launch {
             try {
-                _startUiState.value = quoteRepository.getQuoteOfTheDay()?.let {
+                _startUiState.value = quoteUseCase.getQuoteForTheDay()?.let {
                     QuoteUiState(data = it.quote)
                 } ?: run {
                     QuoteUiState(

@@ -1,6 +1,6 @@
 # RoundTimer
 
-A simple Android interval timer built with Kotlin and Jetpack Compose.
+A simple Android interval timer built with Jetpack Compose, MVVM, Clean Architecture principles, Retrofit, Kotlin Serialization, Navigation 3, and manual dependency injection.
 Users can select a work duration, rest duration, and number of rounds, then run their custom timer.
 This is a recap project created to practice and reinforce my Android development knowledge.
 ## Features
@@ -18,9 +18,10 @@ This is a recap project created to practice and reinforce my Android development
 
 - Kotlin
 - Jetpack Compose
-- Material 3
 - Navigation 3
 - Kotlin Serialization
+- Clean Architecture
+- MVVM
 
 ## How It Works
 
