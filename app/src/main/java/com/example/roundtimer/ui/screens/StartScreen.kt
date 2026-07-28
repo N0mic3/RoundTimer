@@ -9,15 +9,23 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.roundtimer.model.RoundInfoModel
 import com.example.roundtimer.ui.components.DurationPicker
+import com.example.roundtimer.ui.viewmodel.StartViewModel
 
 @Composable
 fun StartScreen(
     modifier: Modifier = Modifier,
     onClick : (RoundInfoModel) -> Unit,
+    startViewModel: StartViewModel = viewModel()
 ) {
+    val quoteUiState = startViewModel.stateUiState.collectAsStateWithLifecycle()
     val roundInfoModel = RoundInfoModel(
         workDuration = 5,
         restDuration = 5,
@@ -28,6 +36,22 @@ fun StartScreen(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
+        Text(
+            modifier = Modifier.padding(
+                bottom = 6.dp
+            ),
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center,
+            fontSize = 16.sp,
+            text = "Quote For the Day"
+        )
+        Text(
+            modifier = modifier.padding(
+                bottom = 12.dp
+            ),
+            textAlign = TextAlign.Center,
+            text = quoteUiState.value.data
+        )
         DurationPicker(
             title = "Work Duration: ",
             startValue = 5,
