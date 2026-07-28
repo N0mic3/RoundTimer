@@ -9,7 +9,9 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
@@ -20,6 +22,7 @@ import com.example.roundtimer.model.StartScreenNavKey
 import com.example.roundtimer.ui.screens.RunningScreen
 import com.example.roundtimer.ui.screens.StartScreen
 import com.example.roundtimer.ui.theme.RoundTimerTheme
+import com.example.roundtimer.ui.viewmodel.RunningViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -68,13 +71,20 @@ fun AppNavigation() {
                 )
             }
             entry<RunningScreenNavKey> {
+                val runningViewModelFactory = remember {
+                    RunningViewModel.factory(it.roundInfoModel)
+                }
+                val runningViewModel: RunningViewModel = viewModel(
+                    factory = runningViewModelFactory
+                )
                 RunningScreen(
                     roundInfoModel = it.roundInfoModel,
                     onBackClick = {
                         if (backStack.size > 1) {
                             backStack.removeAt(backStack.lastIndex)
                         }
-                    }
+                    },
+                    runningViewModel = runningViewModel
                 )
             }
         }
