@@ -1,4 +1,4 @@
-package com.example.roundtimer.data.local.model
+package com.example.roundtimer.data.local.datastore.model
 
 import kotlinx.serialization.Serializable
 

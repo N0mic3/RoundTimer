@@ -2,8 +2,8 @@ package com.example.roundtimer.di
 
 import android.content.Context
 import androidx.datastore.core.DataStore
-import com.example.roundtimer.data.local.model.QuoteCache
-import com.example.roundtimer.data.local.quoteCacheDataStore
+import com.example.roundtimer.data.local.datastore.model.QuoteCache
+import com.example.roundtimer.data.local.datastore.quoteCacheDataStore
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn

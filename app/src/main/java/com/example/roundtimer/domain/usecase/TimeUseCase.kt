@@ -3,7 +3,7 @@ package com.example.roundtimer.domain.usecase
 import com.example.roundtimer.domain.model.TimeSettings
 import com.example.roundtimer.domain.model.TimeState
 import com.example.roundtimer.domain.model.TimerPhase
-import jakarta.inject.Inject
+import javax.inject.Inject
 
 class TimeUseCase @Inject constructor() {
     fun getNextTimeState(

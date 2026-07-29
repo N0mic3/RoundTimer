@@ -25,7 +25,6 @@ fun DurationPicker(
     units: String,
     onClick: (Int) -> Unit,
 ) {
-    var value by rememberSaveable { mutableIntStateOf(startValue) }
     var showPicker by rememberSaveable { mutableStateOf(false) }
     Row(
         modifier = modifier,
@@ -40,7 +39,7 @@ fun DurationPicker(
                     showPicker = true
                 },
             ) {
-                Text("$value $units")
+                Text("$startValue $units")
             }
             DropdownMenu(
                 expanded = showPicker,
@@ -52,7 +51,6 @@ fun DurationPicker(
                             Text("$selectedValue $units")
                         },
                         onClick = {
-                            value = selectedValue
                             showPicker = false
                             onClick.invoke(selectedValue)
                         }

@@ -13,8 +13,11 @@ import com.example.roundtimer.domain.usecase.QuoteUseCase
 import com.example.roundtimer.domain.usecase.TimeUseCase
 import com.example.roundtimer.ui.running.RunningScreen
 import com.example.roundtimer.ui.running.RunningViewModel
+import com.example.roundtimer.ui.savedTimers.SavedTimerScreen
+import com.example.roundtimer.ui.savedTimers.SavedTimersViewModel
 import com.example.roundtimer.ui.start.StartScreen
 import com.example.roundtimer.ui.start.StartViewModel
+import dagger.hilt.android.lifecycle.HiltViewModel
 
 @Composable
 fun AppNavigation() {
@@ -34,10 +37,13 @@ fun AppNavigation() {
             entry<StartScreenNavKey> {
                 val startViewModel: StartViewModel = hiltViewModel()
                 StartScreen(
-                    onClick = {
+                    navigateToRunningScreen = {
                         backStack.add(RunningScreenNavKey(
                             roundInfoModel = it
                         ))
+                    },
+                    navigateToSavedTimersScreen = {
+                        backStack.add(SavedTimersScreenNavKey)
                     },
                     startViewModel = startViewModel
                 )
@@ -56,6 +62,22 @@ fun AppNavigation() {
                         }
                     },
                     runningViewModel = runningViewModel
+                )
+            }
+            entry<SavedTimersScreenNavKey> {
+                val savedTimersViewModel = hiltViewModel<SavedTimersViewModel>()
+                SavedTimerScreen(
+                    onBackClick = {
+                        if (backStack.size > 1) {
+                            backStack.removeAt(backStack.lastIndex)
+                        }
+                    },
+                    navigateToRunningScreen = {
+                        backStack.add(RunningScreenNavKey(
+                            roundInfoModel = it
+                        ))
+                    },
+                    savedTimersViewModel = savedTimersViewModel
                 )
             }
         }

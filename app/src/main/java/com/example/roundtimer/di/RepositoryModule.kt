@@ -1,7 +1,9 @@
 package com.example.roundtimer.di
 
 import com.example.roundtimer.data.repository.QuoteRepositoryImpl
+import com.example.roundtimer.data.repository.SavedTimerRepositoryImpl
 import com.example.roundtimer.domain.repository.QuoteRepository
+import com.example.roundtimer.domain.repository.SavedTimerRepository
 import dagger.Binds
 import dagger.Module
 import dagger.hilt.InstallIn
@@ -17,4 +19,10 @@ abstract class RepositoryModule {
     abstract fun provideQuoteRepository(
         implementation : QuoteRepositoryImpl
     ) : QuoteRepository
+
+    @Binds
+    @Singleton
+    abstract fun provideSavedTimeRepository(
+        implementation: SavedTimerRepositoryImpl
+    ) : SavedTimerRepository
 }

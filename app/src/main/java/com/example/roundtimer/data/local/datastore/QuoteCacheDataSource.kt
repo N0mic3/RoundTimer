@@ -1,9 +1,9 @@
-package com.example.roundtimer.data.local
+package com.example.roundtimer.data.local.datastore
 
 import android.content.Context
 import androidx.datastore.core.DataStore
 import androidx.datastore.dataStore
-import com.example.roundtimer.data.local.model.QuoteCache
+import com.example.roundtimer.data.local.datastore.model.QuoteCache
 import javax.inject.Inject
 import kotlinx.coroutines.flow.first
 

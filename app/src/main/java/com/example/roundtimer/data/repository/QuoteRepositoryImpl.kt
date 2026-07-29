@@ -1,7 +1,7 @@
 package com.example.roundtimer.data.repository
 
-import com.example.roundtimer.data.local.QuoteCacheDataSource
-import com.example.roundtimer.data.local.model.QuoteCache
+import com.example.roundtimer.data.local.datastore.QuoteCacheDataSource
+import com.example.roundtimer.data.local.datastore.model.QuoteCache
 import com.example.roundtimer.data.remote.QuoteApiService
 import com.example.roundtimer.domain.model.Quote
 import com.example.roundtimer.domain.repository.QuoteRepository

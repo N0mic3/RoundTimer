@@ -12,3 +12,6 @@ data object StartScreenNavKey : Screens
 data class RunningScreenNavKey(
     val roundInfoModel: RoundInfoModel
 ) : Screens
+
+@Serializable
+data object SavedTimersScreenNavKey : Screens

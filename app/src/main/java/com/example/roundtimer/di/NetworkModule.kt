@@ -21,7 +21,7 @@ object NetworkModule {
             ignoreUnknownKeys = true
         }
         return Retrofit.Builder()
-            .baseUrl("https://zenquotes.io/")
+            .baseUrl("https://zenquotes.io/api/")
             .addConverterFactory(
                 json.asConverterFactory(
                     "application/json".toMediaType()

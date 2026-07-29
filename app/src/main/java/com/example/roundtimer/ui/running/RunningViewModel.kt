@@ -1,10 +1,7 @@
 package com.example.roundtimer.ui.running
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.roundtimer.domain.model.TimeSettings
 import com.example.roundtimer.domain.model.TimerPhase
 import com.example.roundtimer.domain.usecase.TimeUseCase

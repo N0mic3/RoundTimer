@@ -1,11 +1,10 @@
 package com.example.roundtimer.ui.start
 
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import androidx.lifecycle.viewmodel.initializer
-import androidx.lifecycle.viewmodel.viewModelFactory
+import com.example.roundtimer.domain.model.TimeSettings
 import com.example.roundtimer.domain.usecase.QuoteUseCase
+import com.example.roundtimer.domain.usecase.SavedTimerUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -14,7 +13,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class StartViewModel @Inject constructor(
-    private val quoteUseCase: QuoteUseCase
+    private val quoteUseCase: QuoteUseCase,
+    private val savedTimerUseCase: SavedTimerUseCase
 ) : ViewModel() {
 
     private val _startUiState = MutableStateFlow(QuoteUiState())
@@ -39,6 +39,19 @@ class StartViewModel @Inject constructor(
                     errorMessage = "Unable to load today's quote. Please try again"
                 )
             }
+        }
+    }
+
+
+    fun insertSavedTimer(
+        timeSettings: TimeSettings,
+        name : String
+    ) {
+        viewModelScope.launch {
+            savedTimerUseCase.insertSavedTimer(
+                timeSettings = timeSettings,
+                name = name
+            )
         }
     }
 }

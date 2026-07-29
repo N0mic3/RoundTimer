@@ -1,8 +1,8 @@
-package com.example.roundtimer.data.local
+package com.example.roundtimer.data.local.datastore
 
 import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.Serializer
-import com.example.roundtimer.data.local.model.QuoteCache
+import com.example.roundtimer.data.local.datastore.model.QuoteCache
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.json.Json
 import java.io.InputStream

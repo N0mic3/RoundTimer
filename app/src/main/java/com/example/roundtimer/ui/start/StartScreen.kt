@@ -1,12 +1,21 @@
 package com.example.roundtimer.ui.start
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
@@ -14,22 +23,36 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.roundtimer.ui.navigation.RoundInfoModel
 import com.example.roundtimer.ui.components.DurationPicker
-import com.example.roundtimer.ui.start.StartViewModel
+import com.example.roundtimer.ui.navigation.RoundInfoModel
 
 @Composable
 fun StartScreen(
     modifier: Modifier = Modifier,
-    onClick : (RoundInfoModel) -> Unit,
+    navigateToRunningScreen : (RoundInfoModel) -> Unit,
+    navigateToSavedTimersScreen : () -> Unit,
     startViewModel: StartViewModel,
 ) {
+    var showSaveDialog by rememberSaveable {
+        mutableStateOf(false)
+    }
+    var timerName by rememberSaveable {
+        mutableStateOf("")
+    }
     val quoteUiState = startViewModel.stateUiState.collectAsStateWithLifecycle()
-    var roundInfoModel = RoundInfoModel(
-        workDuration = 5,
-        restDuration = 5,
-        roundCount = 1
+    var workDuration by rememberSaveable {
+        mutableIntStateOf(5)
+    }
+    var restDuration by rememberSaveable {
+        mutableIntStateOf(5)
+    }
+    var roundCount by rememberSaveable {
+        mutableIntStateOf(1)
+    }
+    val roundInfoModel = RoundInfoModel(
+        workDuration = workDuration,
+        restDuration = restDuration,
+        roundCount = roundCount
     )
     Column(
         modifier = modifier.fillMaxSize(),
@@ -54,38 +77,32 @@ fun StartScreen(
         )
         DurationPicker(
             title = "Work Duration: ",
-            startValue = 5,
+            startValue = workDuration,
             endValue = 60,
             step = 5,
             units = "Seconds",
             onClick = {
-                roundInfoModel = roundInfoModel.copy(
-                    workDuration = it
-                )
+                workDuration = it
             }
         )
         DurationPicker(
             title = "Rest Duration: ",
-            startValue = 5,
+            startValue = restDuration,
             endValue = 60,
             step = 5,
             units = "Seconds",
             onClick = {
-                roundInfoModel = roundInfoModel.copy(
-                    restDuration = it
-                )
+                restDuration = it
             }
         )
         DurationPicker(
             title = "Rounds: ",
-            startValue = 1,
+            startValue = roundCount,
             endValue = 10,
             step = 1,
             units = "Rounds",
             onClick = {
-                roundInfoModel = roundInfoModel.copy(
-                    roundCount = it
-                )
+                roundCount = it
             }
         )
         Button(
@@ -93,12 +110,85 @@ fun StartScreen(
                 top = 12.dp
             ),
             onClick = {
-                onClick.invoke(
+                navigateToRunningScreen.invoke(
                     roundInfoModel
                 )
             }
         ) {
             Text("Start")
+        }
+        Box {
+            Button(
+                modifier = Modifier.padding(
+                    top = 12.dp
+                ),
+                onClick = {
+                    showSaveDialog = true
+                }
+            ) {
+                Text("Save")
+            }
+            if (showSaveDialog) {
+                AlertDialog(
+                    onDismissRequest = {
+                        showSaveDialog = false
+                    },
+                    title = {
+                        Text(
+                            text = "Save Timer"
+                        )
+                    },
+                    text = {
+                        OutlinedTextField(
+                            value = timerName,
+                            onValueChange = {
+                                timerName = it
+                            },
+                            label = {
+                                Text(
+                                    text = "Choose a name for this timer preset."
+                                )
+                            }
+                        )
+                    },
+                    confirmButton = {
+                        TextButton(
+                            onClick = {
+                                startViewModel.insertSavedTimer(
+                                    name = timerName.trim(),
+                                    timeSettings = roundInfoModel.toTimeSettings()
+                                )
+                                timerName = ""
+                                showSaveDialog = false
+                            },
+                            enabled = timerName.isNotBlank()
+                        ) {
+                            Text(
+                                text = "Save"
+                            )
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(
+                            onClick = {
+                                showSaveDialog = false
+                            }
+                        ) {
+                            Text(
+                                text = "Cancel"
+                            )
+                        }
+                    }
+                )
+            }
+        }
+        Button(
+            modifier = Modifier.padding(
+                top = 12.dp
+            ),
+            onClick = navigateToSavedTimersScreen
+        ) {
+            Text("Saved List")
         }
     }
 }
