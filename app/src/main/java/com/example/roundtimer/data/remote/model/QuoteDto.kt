@@ -1,4 +1,4 @@
-package com.example.roundtimer.data.model
+package com.example.roundtimer.data.remote.model
 
 import com.example.roundtimer.domain.model.Quote
 import kotlinx.serialization.SerialName

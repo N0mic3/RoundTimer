@@ -16,6 +16,9 @@ import com.example.roundtimer.ui.theme.RoundTimerTheme
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        val appContainer = AppContainer(
+            context = applicationContext
+        )
         enableEdgeToEdge()
         setContent {
             RoundTimerTheme {
@@ -28,8 +31,8 @@ class MainActivity : ComponentActivity() {
                             .padding(innerPadding)
                     ) {
                         AppNavigation(
-                            quoteUseCase = AppContainer.quoteUseCase,
-                            timeUseCase = AppContainer.timeUseCase
+                            quoteUseCase = appContainer.quoteUseCase,
+                            timeUseCase = appContainer.timeUseCase
                         )
                     }
                 }

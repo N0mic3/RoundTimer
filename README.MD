@@ -13,6 +13,8 @@ This is a recap project created to practice and reinforce my Android development
 - Automatically completes after the final work round
 - Pause, resume, and reset the timer
 - Navigation between setup and timer screens
+- Fetch a Quote of the Day from the ZenQuotes API.
+- Caches the Quote of the Day locally with typed DataStore to avoid unnecessary API calls.
 
 ## Built With
 
@@ -22,6 +24,8 @@ This is a recap project created to practice and reinforce my Android development
 - Kotlin Serialization
 - Clean Architecture
 - MVVM
+- retrofit
+- DataStore
 
 ## How It Works
 
@@ -64,8 +68,8 @@ app/src/main/java/com/example/roundtimer/
 - Add sound or vibration when a phase ends
 - Improve the UI
 - Use Room to save custom timers
-- Use Retrofit to fetch a Quote of the Day API
-- Use DataStore to track the Quote of the Day
+- Use Retrofit to fetch a Quote of the Day API (Completed)
+- Use DataStore to track the Quote of the Day (Completed)
 - Integrate an AI Kit for a chat feature
 
 ## Author
