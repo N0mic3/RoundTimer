@@ -9,16 +9,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.ui.Modifier
-import com.example.roundtimer.di.AppContainer
 import com.example.roundtimer.ui.navigation.AppNavigation
 import com.example.roundtimer.ui.theme.RoundTimerTheme
+import dagger.hilt.android.AndroidEntryPoint
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        val appContainer = AppContainer(
-            context = applicationContext
-        )
         enableEdgeToEdge()
         setContent {
             RoundTimerTheme {
@@ -30,10 +28,7 @@ class MainActivity : ComponentActivity() {
                             .fillMaxSize()
                             .padding(innerPadding)
                     ) {
-                        AppNavigation(
-                            quoteUseCase = appContainer.quoteUseCase,
-                            timeUseCase = appContainer.timeUseCase
-                        )
+                        AppNavigation()
                     }
                 }
             }

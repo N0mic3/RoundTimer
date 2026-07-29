@@ -1,10 +1,13 @@
 package com.example.roundtimer.data.local
 
+import android.content.Context
 import androidx.datastore.core.DataStore
+import androidx.datastore.dataStore
 import com.example.roundtimer.data.local.model.QuoteCache
+import javax.inject.Inject
 import kotlinx.coroutines.flow.first
 
-class QuoteCacheDataSource(
+class QuoteCacheDataSource @Inject constructor(
     private val quoteDataStore: DataStore<QuoteCache>
 ) {
     suspend fun getCache() : QuoteCache {
@@ -17,3 +20,8 @@ class QuoteCacheDataSource(
         }
     }
 }
+
+val Context.quoteCacheDataStore: DataStore<QuoteCache> by dataStore(
+    fileName = "quote_cache.json",
+    serializer = QuoteCacheSerializer
+)

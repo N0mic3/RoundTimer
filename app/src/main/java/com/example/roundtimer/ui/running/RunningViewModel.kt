@@ -8,29 +8,25 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.roundtimer.domain.model.TimeSettings
 import com.example.roundtimer.domain.model.TimerPhase
 import com.example.roundtimer.domain.usecase.TimeUseCase
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedFactory
+import dagger.assisted.AssistedInject
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-class RunningViewModel(
-    private val timeSettings: TimeSettings,
+@HiltViewModel(assistedFactory = RunningViewModel.Factory::class)
+class RunningViewModel @AssistedInject constructor(
+    @Assisted private val timeSettings: TimeSettings,
     private val timeUseCase: TimeUseCase
 ) : ViewModel() {
 
-    companion object {
-        fun factory(
-            timeSettings: TimeSettings,
-            timeUseCase: TimeUseCase
-        ): ViewModelProvider.Factory = viewModelFactory {
-            initializer {
-                RunningViewModel(
-                    timeSettings = timeSettings,
-                    timeUseCase = timeUseCase
-                )
-            }
-        }
+    @AssistedFactory
+    interface Factory {
+        fun create(timeSettings : TimeSettings) : RunningViewModel
     }
 
     private val _timerUiState = MutableStateFlow(TimerUiState())

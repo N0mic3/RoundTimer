@@ -2,6 +2,7 @@ package com.example.roundtimer.ui.navigation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.entryProvider
@@ -16,10 +17,7 @@ import com.example.roundtimer.ui.start.StartScreen
 import com.example.roundtimer.ui.start.StartViewModel
 
 @Composable
-fun AppNavigation(
-    quoteUseCase: QuoteUseCase,
-    timeUseCase: TimeUseCase
-) {
+fun AppNavigation() {
     val backStack = rememberNavBackStack(StartScreenNavKey)
     NavDisplay(
         backStack = backStack,
@@ -34,11 +32,7 @@ fun AppNavigation(
         ),
         entryProvider = entryProvider {
             entry<StartScreenNavKey> {
-                val startViewModel: StartViewModel = viewModel(
-                    factory = StartViewModel.factory(
-                        quoteUseCase = quoteUseCase
-                    )
-                )
+                val startViewModel: StartViewModel = hiltViewModel()
                 StartScreen(
                     onClick = {
                         backStack.add(RunningScreenNavKey(
@@ -49,14 +43,10 @@ fun AppNavigation(
                 )
             }
             entry<RunningScreenNavKey> {
-                val runningViewModelFactory = remember {
-                    RunningViewModel.factory(
-                        timeSettings = it.roundInfoModel.toTimeSettings(),
-                        timeUseCase = timeUseCase
-                    )
-                }
-                val runningViewModel: RunningViewModel = viewModel(
-                    factory = runningViewModelFactory
+                val runningViewModel: RunningViewModel = hiltViewModel<RunningViewModel, RunningViewModel.Factory>(
+                    creationCallback = { factory ->
+                        factory.create(it.roundInfoModel.toTimeSettings())
+                    }
                 )
                 RunningScreen(
                     roundInfoModel = it.roundInfoModel,

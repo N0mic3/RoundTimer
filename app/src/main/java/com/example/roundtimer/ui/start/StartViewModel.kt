@@ -6,23 +6,16 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.roundtimer.domain.usecase.QuoteUseCase
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class StartViewModel(
+@HiltViewModel
+class StartViewModel @Inject constructor(
     private val quoteUseCase: QuoteUseCase
 ) : ViewModel() {
-
-    companion object {
-        fun factory(
-            quoteUseCase: QuoteUseCase
-        ): ViewModelProvider.Factory = viewModelFactory {
-            initializer {
-                StartViewModel(quoteUseCase)
-            }
-        }
-    }
 
     private val _startUiState = MutableStateFlow(QuoteUiState())
     val stateUiState = _startUiState.asStateFlow()
