@@ -1,8 +1,7 @@
 # RoundTimer
 
-A simple Android interval timer built with Jetpack Compose, MVVM, Clean Architecture principles, Retrofit, Kotlin Serialization, Navigation 3, and manual dependency injection.
-Users can select a work duration, rest duration, and number of rounds, then run their custom timer.
-This is a recap project created to practice and reinforce my Android development knowledge.
+Round Timer is a native Android interval timer app built as a recap project for practicing modern Android development. Users can customize work duration, rest duration, and round count; run a work/rest timer; and manage named timer presets through local Room database storage.
+The app follows MVVM and Clean Architecture principles, uses Hilt for dependency injection, Jetpack Compose and Navigation 3 for UI/navigation, Retrofit for the ZenQuotes Quote of the Day API, and typed DataStore to cache the daily quote locally.
 ## Features
 
 - Choose a work duration from 5 to 60 seconds
