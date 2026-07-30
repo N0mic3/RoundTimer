@@ -15,7 +15,10 @@ This is a recap project created to practice and reinforce my Android development
 - Navigation between setup and timer screens
 - Fetch a Quote of the Day from the ZenQuotes API.
 - Caches the Quote of the Day locally with typed DataStore to avoid unnecessary API calls.
-- Uses Hilt for dependency injection, replacing manual dependency creation with `AppContainer`.
+- Uses Hilt for dependency injection. 
+- Save named timer presets locally.
+- View, update, and delete saved timer presets.
+- Start a timer directly from a saved preset.
 
 ## Built With
 
@@ -28,6 +31,7 @@ This is a recap project created to practice and reinforce my Android development
 - retrofit
 - DataStore
 - Hilt
+- Room
 
 ## How It Works
 

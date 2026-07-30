@@ -1,7 +1,6 @@
 package com.example.roundtimer.ui.start
 
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
@@ -98,7 +97,7 @@ fun StartScreen(
         DurationPicker(
             title = "Rounds: ",
             startValue = roundCount,
-            endValue = 10,
+            endValue = 20,
             step = 1,
             units = "Rounds",
             onClick = {
@@ -117,70 +116,15 @@ fun StartScreen(
         ) {
             Text("Start")
         }
-        Box {
-            Button(
-                modifier = Modifier.padding(
-                    top = 12.dp
-                ),
-                onClick = {
-                    showSaveDialog = true
-                }
-            ) {
-                Text("Save")
+        Button(
+            modifier = Modifier.padding(
+                top = 12.dp
+            ),
+            onClick = {
+                showSaveDialog = true
             }
-            if (showSaveDialog) {
-                AlertDialog(
-                    onDismissRequest = {
-                        showSaveDialog = false
-                    },
-                    title = {
-                        Text(
-                            text = "Save Timer"
-                        )
-                    },
-                    text = {
-                        OutlinedTextField(
-                            value = timerName,
-                            onValueChange = {
-                                timerName = it
-                            },
-                            label = {
-                                Text(
-                                    text = "Choose a name for this timer preset."
-                                )
-                            }
-                        )
-                    },
-                    confirmButton = {
-                        TextButton(
-                            onClick = {
-                                startViewModel.insertSavedTimer(
-                                    name = timerName.trim(),
-                                    timeSettings = roundInfoModel.toTimeSettings()
-                                )
-                                timerName = ""
-                                showSaveDialog = false
-                            },
-                            enabled = timerName.isNotBlank()
-                        ) {
-                            Text(
-                                text = "Save"
-                            )
-                        }
-                    },
-                    dismissButton = {
-                        TextButton(
-                            onClick = {
-                                showSaveDialog = false
-                            }
-                        ) {
-                            Text(
-                                text = "Cancel"
-                            )
-                        }
-                    }
-                )
-            }
+        ) {
+            Text("Save")
         }
         Button(
             modifier = Modifier.padding(
@@ -190,5 +134,58 @@ fun StartScreen(
         ) {
             Text("Saved List")
         }
+    }
+    if (showSaveDialog) {
+        AlertDialog(
+            onDismissRequest = {
+                showSaveDialog = false
+            },
+            title = {
+                Text(
+                    text = "Save Timer"
+                )
+            },
+            text = {
+                OutlinedTextField(
+                    value = timerName,
+                    onValueChange = {
+                        timerName = it
+                    },
+                    label = {
+                        Text(
+                            text = "Choose a name for this timer preset."
+                        )
+                    }
+                )
+            },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        startViewModel.insertSavedTimer(
+                            name = timerName.trim(),
+                            timeSettings = roundInfoModel.toTimeSettings()
+                        )
+                        timerName = ""
+                        showSaveDialog = false
+                    },
+                    enabled = timerName.trim().isNotBlank()
+                ) {
+                    Text(
+                        text = "Save"
+                    )
+                }
+            },
+            dismissButton = {
+                TextButton(
+                    onClick = {
+                        showSaveDialog = false
+                    }
+                ) {
+                    Text(
+                        text = "Cancel"
+                    )
+                }
+            }
+        )
     }
 }

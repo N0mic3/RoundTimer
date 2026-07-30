@@ -26,6 +26,34 @@ class SavedTimerRepositoryImpl @Inject constructor(
         )
     }
 
+    override suspend fun updateSavedTimeSetting(
+        savedTimer: SavedTimer
+    ) {
+        savedTimerDao.updateSavedTimer(
+            SavedTimerEntity(
+                id = savedTimer.id,
+                name = savedTimer.name,
+                workSeconds = savedTimer.timeSettings.workDuration,
+                restSeconds = savedTimer.timeSettings.restDuration,
+                roundCount = savedTimer.timeSettings.roundCount,
+            )
+        )
+    }
+
+    override suspend fun deleteSavedTimeSetting(
+        savedTimer: SavedTimer
+    ) {
+        savedTimerDao.deleteSavedTimer(
+            SavedTimerEntity(
+                id = savedTimer.id,
+                name = savedTimer.name,
+                workSeconds = savedTimer.timeSettings.workDuration,
+                restSeconds = savedTimer.timeSettings.restDuration,
+                roundCount = savedTimer.timeSettings.roundCount,
+            )
+        )
+    }
+
     override fun getSavedTimerList(): Flow<List<SavedTimer>> = savedTimerDao.getSavedTimerList().map { it ->
         it.map {
             it.toSaveTimer()

@@ -1,5 +1,6 @@
 package com.example.roundtimer.domain.usecase
 
+import com.example.roundtimer.domain.model.SavedTimer
 import com.example.roundtimer.domain.model.TimeSettings
 import com.example.roundtimer.domain.repository.SavedTimerRepository
 import javax.inject.Inject
@@ -16,4 +17,20 @@ class SavedTimerUseCase @Inject constructor(
     )
 
     fun getSavedTimerList() = savedTimerRepository.getSavedTimerList()
+
+    suspend fun updateSavedTimer(
+        savedTimer: SavedTimer
+    ) {
+        savedTimerRepository.updateSavedTimeSetting(
+            savedTimer = savedTimer
+        )
+    }
+
+    suspend fun deleteSavedTimerList(
+        savedTimer: SavedTimer
+    ) {
+        savedTimerRepository.deleteSavedTimeSetting(
+            savedTimer = savedTimer
+        )
+    }
 }

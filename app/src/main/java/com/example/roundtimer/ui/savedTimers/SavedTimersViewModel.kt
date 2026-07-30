@@ -2,6 +2,7 @@ package com.example.roundtimer.ui.savedTimers
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.roundtimer.domain.model.SavedTimer
 import com.example.roundtimer.domain.usecase.SavedTimerUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -30,4 +31,26 @@ class SavedTimersViewModel @Inject constructor(
             }
         }
     }
+
+    fun updateSavedTimeList(
+        savedTimer: SavedTimer
+    ) {
+        viewModelScope.launch {
+            savedTimerUseCase.updateSavedTimer(
+                savedTimer
+            )
+        }
+    }
+
+    fun deleteSavedTimeList(
+        savedTimer: SavedTimer
+    ) {
+        viewModelScope.launch {
+            savedTimerUseCase.deleteSavedTimerList(
+                savedTimer
+            )
+        }
+    }
+
+
 }

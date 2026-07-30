@@ -11,4 +11,12 @@ interface SavedTimerRepository {
     )
 
     fun getSavedTimerList() : Flow<List<SavedTimer>>
+
+    suspend fun updateSavedTimeSetting(
+        savedTimer: SavedTimer
+    )
+
+    suspend fun deleteSavedTimeSetting(
+        savedTimer: SavedTimer
+    )
 }
