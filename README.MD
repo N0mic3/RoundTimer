@@ -73,9 +73,6 @@ app/src/main/java/com/example/roundtimer/
 
 - Add sound or vibration when a phase ends
 - Improve the UI
-- Use Room to save custom timers
-- Use Retrofit to fetch a Quote of the Day API (Completed)
-- Use DataStore to track the Quote of the Day (Completed)
 - Integrate an AI Kit for a chat feature
 
 ## Author
