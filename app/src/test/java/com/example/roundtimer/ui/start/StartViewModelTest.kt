@@ -12,6 +12,7 @@ import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import org.junit.Assert
 import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
@@ -28,15 +29,9 @@ class StartViewModelTest {
     @MockK(relaxUnitFun = true)
     lateinit var savedTimerUseCase: SavedTimerUseCase
 
-    lateinit var startViewModelTest: StartViewModel
-
     @Before
     fun setUp() {
         MockKAnnotations.init(this)
-        startViewModelTest = StartViewModel(
-            quoteUseCase = quoteUseCase,
-            savedTimerUseCase = savedTimerUseCase
-        )
     }
 
     private fun createViewModel(): StartViewModel {
@@ -47,7 +42,64 @@ class StartViewModelTest {
     }
 
     @Test
+    fun `init get quote for the day`() = runTest {
+        val quote = Quote(
+            quote = "hello",
+            author = "me"
+        )
+        coEvery {
+            quoteUseCase.getQuoteForTheDay()
+        } returns quote
+        val startViewModel = createViewModel()
+        advanceUntilIdle()
+        Assert.assertEquals(
+            QuoteUiState(data = quote.quote),
+            startViewModel.stateUiState.value
+        )
+        coVerify(exactly = 1) {
+            quoteUseCase.getQuoteForTheDay()
+        }
+    }
+
+    @Test
+    fun `init get quote for the day null case`() = runTest {
+        coEvery {
+            quoteUseCase.getQuoteForTheDay()
+        } returns null
+        val startViewModel = createViewModel()
+        advanceUntilIdle()
+        Assert.assertEquals(
+            QuoteUiState(data = "No quote for the day"),
+            startViewModel.stateUiState.value
+        )
+        coVerify(exactly = 1) {
+            quoteUseCase.getQuoteForTheDay()
+        }
+    }
+
+    @Test
+    fun `init get quote for the day crash case`() = runTest {
+        coEvery {
+            quoteUseCase.getQuoteForTheDay()
+        } throws Exception("Failure")
+        val startViewModel = createViewModel()
+        advanceUntilIdle()
+        Assert.assertEquals(
+            QuoteUiState(
+                errorMessage = "Unable to load today's quote. Please try again"
+            ),
+            startViewModel.stateUiState.value
+        )
+        coVerify(exactly = 1) {
+            quoteUseCase.getQuoteForTheDay()
+        }
+    }
+
+    @Test
     fun `insertSavedTimer value to use case`() = runTest {
+        coEvery {
+            quoteUseCase.getQuoteForTheDay()
+        } returns null
         val timeSettings = TimeSettings(
             workDuration = 10,
             restDuration = 10,
