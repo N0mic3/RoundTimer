@@ -26,7 +26,7 @@ class SavedTimerUseCase @Inject constructor(
         )
     }
 
-    suspend fun deleteSavedTimerList(
+    suspend fun deleteSavedTimer(
         savedTimer: SavedTimer
     ) {
         savedTimerRepository.deleteSavedTimeSetting(

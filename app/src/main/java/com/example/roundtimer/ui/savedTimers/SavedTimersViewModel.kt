@@ -46,7 +46,7 @@ class SavedTimersViewModel @Inject constructor(
         savedTimer: SavedTimer
     ) {
         viewModelScope.launch {
-            savedTimerUseCase.deleteSavedTimerList(
+            savedTimerUseCase.deleteSavedTimer(
                 savedTimer
             )
         }
