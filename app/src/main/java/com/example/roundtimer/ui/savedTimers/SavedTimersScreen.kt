@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -167,7 +166,7 @@ fun SavedTimerScreen(
                 confirmButton = {
                     TextButton(
                         onClick = {
-                            savedTimersViewModel.deleteSavedTimeList(
+                            savedTimersViewModel.deleteSavedTimer(
                                 savedTimer = timer
                             )
                             currentPosition = null

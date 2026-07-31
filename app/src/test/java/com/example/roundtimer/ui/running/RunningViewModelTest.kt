@@ -1,10 +1,10 @@
 package com.example.roundtimer.ui.running
 
+import com.example.roundtimer.BaseMockkTestClass
 import com.example.roundtimer.domain.model.TimeSettings
 import com.example.roundtimer.domain.model.TimerPhase
 import com.example.roundtimer.domain.usecase.TimeUseCase
 import com.example.roundtimer.testutil.MainDispatcherRule
-import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.verify
@@ -13,12 +13,11 @@ import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
-import org.junit.Before
 import org.junit.Rule
 import org.junit.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class RunningViewModelTest {
+class RunningViewModelTest : BaseMockkTestClass() {
 
     @get:Rule
     val mainDispatcherRule = MainDispatcherRule()
@@ -37,11 +36,6 @@ class RunningViewModelTest {
             timeSettings = timeSettings,
             timeUseCase = timeUseCase
         )
-    }
-
-    @Before
-    fun setUp() {
-        MockKAnnotations.init(this)
     }
 
     @Test

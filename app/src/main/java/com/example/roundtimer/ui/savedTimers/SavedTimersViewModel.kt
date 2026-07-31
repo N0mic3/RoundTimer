@@ -42,7 +42,7 @@ class SavedTimersViewModel @Inject constructor(
         }
     }
 
-    fun deleteSavedTimeList(
+    fun deleteSavedTimer(
         savedTimer: SavedTimer
     ) {
         viewModelScope.launch {
