@@ -82,9 +82,4 @@ class RunningViewModel @AssistedInject constructor(
             timerJob?.cancel()
         }
     }
-
-    override fun onCleared() {
-        timerJob?.cancel()
-        super.onCleared()
-    }
 }
