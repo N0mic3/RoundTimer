@@ -13,7 +13,7 @@ interface SavedTimerDao {
     @Insert
     suspend fun insertSavedTimer(
         savedTimerEntity: SavedTimerEntity
-    ) : Long
+    )
 
     @Query(
         "SELECT * FROM saved_timers ORDER BY ID DESC"
@@ -23,10 +23,10 @@ interface SavedTimerDao {
     @Update
     suspend fun updateSavedTimer(
         savedTimerEntity: SavedTimerEntity
-    ) : Int
+    )
 
     @Delete
     suspend fun deleteSavedTimer(
         savedTimerEntity: SavedTimerEntity
-    ): Int
+    )
 }
