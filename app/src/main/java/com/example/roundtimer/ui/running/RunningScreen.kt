@@ -14,7 +14,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.roundtimer.domain.model.TimerPhase
 import com.example.roundtimer.ui.navigation.RoundInfoModel
-import com.example.roundtimer.utils.formatTime
+import com.example.roundtimer.utils.Utils.formatTime
 
 @Composable
 fun RunningScreen(

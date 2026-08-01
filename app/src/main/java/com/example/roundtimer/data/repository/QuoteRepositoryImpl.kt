@@ -5,8 +5,7 @@ import com.example.roundtimer.data.local.datastore.model.QuoteCache
 import com.example.roundtimer.data.remote.QuoteApiService
 import com.example.roundtimer.domain.model.Quote
 import com.example.roundtimer.domain.repository.QuoteRepository
-import java.text.SimpleDateFormat
-import java.util.Calendar
+import com.example.roundtimer.utils.Utils
 import javax.inject.Inject
 
 class QuoteRepositoryImpl @Inject constructor(
@@ -14,28 +13,18 @@ class QuoteRepositoryImpl @Inject constructor(
     private val quoteCacheDataSource: QuoteCacheDataSource
 ) : QuoteRepository {
     override suspend fun getQuoteOfTheDay() : Quote?  {
-        val today = SimpleDateFormat(
-            "yyyy-MM-dd",
-            java.util.Locale.US
-        ).format(
-            Calendar.getInstance().time
-        )
         val quoteCache = quoteCacheDataSource.getCache()
-        return if (today == quoteCache.date && quoteCache.quote.isNotBlank()) {
+        return if (Utils.isToday(quoteCache.date) && quoteCache.quote.isNotBlank()) {
             Quote(
                 quote = quoteCache.quote,
                 author = quoteCache.author
             )
         } else {
-            quoteApiService.getQuoteOfTheDay().firstOrNull()?.toQuote()?.also {
+            quoteApiService.getQuoteOfTheDay().firstOrNull()?.also {
                 quoteCacheDataSource.saveCache(
-                    QuoteCache(
-                        date = today,
-                        quote = it.quote,
-                        author = it.author
-                    )
+                    it.toQuoteCache()
                 )
-            }
+            }?.toQuote()
         }
     }
 }
