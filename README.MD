@@ -19,6 +19,13 @@ The app follows MVVM and Clean Architecture principles, uses Hilt for dependency
 - View, update, and delete saved timer presets.
 - Start a timer directly from a saved preset.
 
+## Testing Tools
+
+- JUnit 4 for the test framework and assertions
+- MockK for mocking dependencies and verifying interactions
+- `kotlinx-coroutines-test` for testing suspend functions and controlling coroutine execution
+- `Clock.fixed()` for deterministic date-based tests
+
 ## Built With
 
 - Kotlin
@@ -31,6 +38,9 @@ The app follows MVVM and Clean Architecture principles, uses Hilt for dependency
 - DataStore
 - Hilt
 - Room
+- JUnit 4
+- MockK
+- Kotlin Coroutines Test
 
 ## How It Works
 
