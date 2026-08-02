@@ -1,7 +1,11 @@
 # RoundTimer
 
+[![Android CI](https://github.com/N0mic3/RoundTimer/actions/workflows/android-ci.yml/badge.svg?branch=main)](https://github.com/N0mic3/RoundTimer/actions/workflows/android-ci.yml)
+
 Round Timer is a native Android interval timer app built as a recap project for practicing modern Android development. Users can customize work duration, rest duration, and round count; run a work/rest timer; and manage named timer presets through local Room database storage.
+
 The app follows MVVM and Clean Architecture principles, uses Hilt for dependency injection, Jetpack Compose and Navigation 3 for UI/navigation, Retrofit for the ZenQuotes Quote of the Day API, and typed DataStore to cache the daily quote locally.
+
 ## Features
 
 - Choose a work duration from 5 to 60 seconds
@@ -25,6 +29,10 @@ The app follows MVVM and Clean Architecture principles, uses Hilt for dependency
 - MockK for mocking dependencies and verifying interactions
 - `kotlinx-coroutines-test` for testing suspend functions and controlling coroutine execution
 - `Clock.fixed()` for deterministic date-based tests
+
+## Continuous Integration
+
+GitHub Actions runs the Android CI workflow on every push and pull request targeting `main`. The workflow runs the unit tests, builds the debug APK, and uploads the test reports and APK as downloadable artifacts.
 
 ## Built With
 
@@ -68,14 +76,30 @@ The app follows MVVM and Clean Architecture principles, uses Hilt for dependency
 ## Project Structure
 
 ```text
-app/src/main/java/com/example/roundtimer/
-├── model/       # Timer data and navigation screen keys
-├── ui/
-│   ├── components/ # Reusable Compose UI components
-│   ├── screens/    # Setup and running timer screens
-│   └── theme/      # App colors, typography, and theme
-├── utils/       # Shared helper functions
-└── MainActivity.kt
+app/src/
+├── main/java/com/example/roundtimer/
+│   ├── data/
+│   │   ├── local/
+│   │   │   ├── datastore/   # Cached Quote of the Day data
+│   │   │   └── room/        # Saved-timer database and DAO
+│   │   ├── remote/              # ZenQuotes API and DTOs
+│   │   └── repository/          # Repository implementations
+│   ├── di/                          # Hilt dependency-injection modules
+│   ├── domain/
+│   │   ├── model/               # Domain models and timer state
+│   │   ├── repository/          # Repository interfaces
+│   │   └── usecase/             # Timer, quote, and preset use cases
+│   ├── ui/
+│   │   ├── components/          # Reusable Compose components
+│   │   ├── navigation/          # Navigation 3 routes and graph
+│   │   ├── running/             # Active-timer screen and ViewModel
+│   │   ├── savedTimers/         # Saved-presets screen and ViewModel
+│   │   ├── start/               # Timer setup screen and ViewModel
+│   │   └── theme/               # App colors, typography, and theme
+│   ├── utils/                       # Shared helper functions
+│   ├── MainActivity.kt              # Main Android activity
+│   └── RoundTimerApplication.kt     # Hilt application class
+└── test/java/com/example/roundtimer/    # Unit, repository, and ViewModel tests
 ```
 
 ## Future Improvements
