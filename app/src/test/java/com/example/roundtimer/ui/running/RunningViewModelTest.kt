@@ -1,6 +1,7 @@
 package com.example.roundtimer.ui.running
 
 import com.example.roundtimer.BaseMockkTestClass
+import com.example.roundtimer.data.audio.PhaseSoundPlayer
 import com.example.roundtimer.domain.model.TimeSettings
 import com.example.roundtimer.domain.model.TimerPhase
 import com.example.roundtimer.domain.usecase.TimeUseCase
@@ -25,6 +26,9 @@ class RunningViewModelTest : BaseMockkTestClass() {
     @MockK(relaxUnitFun = true)
     lateinit var timeUseCase: TimeUseCase
 
+    @MockK(relaxUnitFun = true)
+    lateinit var phaseSoundPlayer: PhaseSoundPlayer
+
     val timeSettings = TimeSettings(
         workDuration = 20,
         restDuration = 20,
@@ -34,7 +38,8 @@ class RunningViewModelTest : BaseMockkTestClass() {
     private fun createViewModel(): RunningViewModel {
         return RunningViewModel(
             timeSettings = timeSettings,
-            timeUseCase = timeUseCase
+            timeUseCase = timeUseCase,
+            phaseSoundPlayer = phaseSoundPlayer
         )
     }
 
@@ -61,6 +66,11 @@ class RunningViewModelTest : BaseMockkTestClass() {
             timeUseCase.getNextTimeState(
                 currentState = currentState,
                 timeSettings = timeSettings
+            )
+        }
+        verify(exactly = 0) {
+            phaseSoundPlayer.playFor(
+                any()
             )
         }
         runningViewModel.pauseTimer()
@@ -132,6 +142,11 @@ class RunningViewModelTest : BaseMockkTestClass() {
         val runningViewModel = createViewModel()
         advanceTimeBy(1_000)
         runCurrent()
+        verify(exactly = 1) {
+            phaseSoundPlayer.playFor(
+                TimerPhase.Complete
+            )
+        }
         Assert.assertEquals(
             nextState,
             runningViewModel.timerUiState.value.timeState
