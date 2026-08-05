@@ -2,6 +2,7 @@ package com.example.roundtimer.ui.running
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.roundtimer.data.audio.PhaseSoundPlayer
 import com.example.roundtimer.domain.model.TimeSettings
 import com.example.roundtimer.domain.model.TimerPhase
 import com.example.roundtimer.domain.usecase.TimeUseCase
@@ -18,7 +19,8 @@ import kotlinx.coroutines.launch
 @HiltViewModel(assistedFactory = RunningViewModel.Factory::class)
 class RunningViewModel @AssistedInject constructor(
     @Assisted private val timeSettings: TimeSettings,
-    private val timeUseCase: TimeUseCase
+    private val timeUseCase: TimeUseCase,
+    private val phaseSoundPlayer: PhaseSoundPlayer
 ) : ViewModel() {
 
     @AssistedFactory
@@ -47,12 +49,16 @@ class RunningViewModel @AssistedInject constructor(
     }
 
     private fun onTimerTick() {
+        val currentPhase = _timerUiState.value.timeState.phase
         _timerUiState.value = _timerUiState.value.copy(
             timeState = timeUseCase.getNextTimeState(
                 currentState = _timerUiState.value.timeState,
                 timeSettings = timeSettings
             )
         )
+        if (_timerUiState.value.timeState.phase != currentPhase) {
+            phaseSoundPlayer.playFor(_timerUiState.value.timeState.phase)
+        }
     }
 
     fun onMainButtonClick() {
