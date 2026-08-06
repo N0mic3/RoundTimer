@@ -22,6 +22,9 @@ The app follows MVVM and Clean Architecture principles, uses Hilt for dependency
 - Save named timer presets locally.
 - View, update, and delete saved timer presets.
 - Start a timer directly from a saved preset.
+- Plays distinct sound effects when work, rest, and completion phases begin.
+- Keeps an active timer visible in the background with an Android foreground-service notification.
+- Updates the ongoing notification with the current timer phase and remaining time.
 
 ## Testing Tools
 
@@ -49,6 +52,9 @@ GitHub Actions runs the Android CI workflow on every push and pull request targe
 - JUnit 4
 - MockK
 - Kotlin Coroutines Test
+- Android Foreground Service
+- Android Notifications
+- SoundPool
 
 ## How It Works
 
@@ -79,13 +85,18 @@ GitHub Actions runs the Android CI workflow on every push and pull request targe
 app/src/
 ├── main/java/com/example/roundtimer/
 │   ├── data/
+│   │   ├── audio/               # Phase sound playback
+│   │   ├── controller/          # Android timer-session implementation
 │   │   ├── local/
-│   │   │   ├── datastore/   # Cached Quote of the Day data
-│   │   │   └── room/        # Saved-timer database and DAO
+│   │   │   ├── datastore/       # Cached Quote of the Day data
+│   │   │   └── room/            # Saved-timer database and DAO
+│   │   ├── notification/        # Foreground notification creation and updates
 │   │   ├── remote/              # ZenQuotes API and DTOs
-│   │   └── repository/          # Repository implementations
-│   ├── di/                          # Hilt dependency-injection modules
+│   │   ├── repository/          # Repository implementations
+│   │   └── service/             # Foreground timer service
+│   ├── di/                      # Hilt dependency-injection modules
 │   ├── domain/
+│   │   ├── controller/          # Timer-session abstraction
 │   │   ├── model/               # Domain models and timer state
 │   │   ├── repository/          # Repository interfaces
 │   │   └── usecase/             # Timer, quote, and preset use cases
@@ -96,10 +107,11 @@ app/src/
 │   │   ├── savedTimers/         # Saved-presets screen and ViewModel
 │   │   ├── start/               # Timer setup screen and ViewModel
 │   │   └── theme/               # App colors, typography, and theme
-│   ├── utils/                       # Shared helper functions
-│   ├── MainActivity.kt              # Main Android activity
-│   └── RoundTimerApplication.kt     # Hilt application class
-└── test/java/com/example/roundtimer/    # Unit, repository, and ViewModel tests
+│   ├── utils/                   # Shared helper functions
+│   ├── MainActivity.kt          # Main Android activity
+│   ├── MainActivityViewModel.kt # Activity-level navigation/session actions
+│   └── RoundTimerApplication.kt # Hilt application class
+└── test/java/com/example/roundtimer/ # Unit, repository, and ViewModel tests
 ```
 
 ## Future Improvements
