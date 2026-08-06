@@ -2,8 +2,9 @@ package com.example.roundtimer.ui.running
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.roundtimer.data.audio.PhaseSoundPlayer
+import com.example.roundtimer.domain.controller.TimerSessionController
 import com.example.roundtimer.domain.model.TimeSettings
+import com.example.roundtimer.domain.model.TimeState
 import com.example.roundtimer.domain.model.TimerPhase
 import com.example.roundtimer.domain.usecase.TimeUseCase
 import dagger.assisted.Assisted
@@ -20,7 +21,7 @@ import kotlinx.coroutines.launch
 class RunningViewModel @AssistedInject constructor(
     @Assisted private val timeSettings: TimeSettings,
     private val timeUseCase: TimeUseCase,
-    private val phaseSoundPlayer: PhaseSoundPlayer
+    private val timerSessionController: TimerSessionController
 ) : ViewModel() {
 
     @AssistedFactory
@@ -49,16 +50,27 @@ class RunningViewModel @AssistedInject constructor(
     }
 
     private fun onTimerTick() {
-        val currentPhase = _timerUiState.value.timeState.phase
-        _timerUiState.value = _timerUiState.value.copy(
-            timeState = timeUseCase.getNextTimeState(
+        updateTimeState(
+            nextTimeState = timeUseCase.getNextTimeState(
                 currentState = _timerUiState.value.timeState,
                 timeSettings = timeSettings
             )
         )
-        if (_timerUiState.value.timeState.phase != currentPhase) {
-            phaseSoundPlayer.playFor(_timerUiState.value.timeState.phase)
-        }
+    }
+
+    private fun updateTimeState(
+        nextTimeState: TimeState,
+    ) {
+        val previousTimeState = _timerUiState.value.timeState
+
+        _timerUiState.value = _timerUiState.value.copy(
+            timeState = nextTimeState
+        )
+
+        timerSessionController.onTimeStateChanged(
+            previousTimeState,
+            nextTimeState,
+        )
     }
 
     fun onMainButtonClick() {
@@ -71,17 +83,16 @@ class RunningViewModel @AssistedInject constructor(
 
     fun resetTimer() {
         timerJob?.cancel()
-        _timerUiState.value = TimerUiState()
+        updateTimeState(TimerUiState().timeState)
         startTimer()
     }
 
     fun pauseTimer() {
-        _timerUiState.value = _timerUiState.value.copy(
-            timeState = _timerUiState.value.timeState.copy(
+        updateTimeState(
+            nextTimeState = _timerUiState.value.timeState.copy(
                 isRunning = !_timerUiState.value.timeState.isRunning
             )
         )
-
         if (_timerUiState.value.timeState.isRunning) {
             startTimer()
         } else {

@@ -1,7 +1,7 @@
 package com.example.roundtimer.ui.running
 
 import com.example.roundtimer.BaseMockkTestClass
-import com.example.roundtimer.data.audio.PhaseSoundPlayer
+import com.example.roundtimer.domain.controller.TimerSessionController
 import com.example.roundtimer.domain.model.TimeSettings
 import com.example.roundtimer.domain.model.TimerPhase
 import com.example.roundtimer.domain.usecase.TimeUseCase
@@ -27,7 +27,7 @@ class RunningViewModelTest : BaseMockkTestClass() {
     lateinit var timeUseCase: TimeUseCase
 
     @MockK(relaxUnitFun = true)
-    lateinit var phaseSoundPlayer: PhaseSoundPlayer
+    lateinit var timerSessionController: TimerSessionController
 
     val timeSettings = TimeSettings(
         workDuration = 20,
@@ -39,7 +39,7 @@ class RunningViewModelTest : BaseMockkTestClass() {
         return RunningViewModel(
             timeSettings = timeSettings,
             timeUseCase = timeUseCase,
-            phaseSoundPlayer = phaseSoundPlayer
+            timerSessionController = timerSessionController
         )
     }
 
@@ -68,9 +68,10 @@ class RunningViewModelTest : BaseMockkTestClass() {
                 timeSettings = timeSettings
             )
         }
-        verify(exactly = 0) {
-            phaseSoundPlayer.playFor(
-                any()
+        verify(exactly = 1) {
+            timerSessionController.onTimeStateChanged(
+                currentState,
+                nextState
             )
         }
         runningViewModel.pauseTimer()
@@ -79,6 +80,7 @@ class RunningViewModelTest : BaseMockkTestClass() {
     @Test
     fun `onMainButtonClick pause`() = runTest {
         val runningViewModel = createViewModel()
+        val runningState = runningViewModel.timerUiState.value.timeState
         runningViewModel.onMainButtonClick()
         val pausedState = runningViewModel.timerUiState.value.timeState
 
@@ -92,6 +94,12 @@ class RunningViewModelTest : BaseMockkTestClass() {
 
         verify(exactly = 0) {
             timeUseCase.getNextTimeState(any(), any())
+        }
+        verify(exactly = 1) {
+            timerSessionController.onTimeStateChanged(
+                runningState,
+                pausedState
+            )
         }
     }
 
@@ -143,8 +151,9 @@ class RunningViewModelTest : BaseMockkTestClass() {
         advanceTimeBy(1_000)
         runCurrent()
         verify(exactly = 1) {
-            phaseSoundPlayer.playFor(
-                TimerPhase.Complete
+            timerSessionController.onTimeStateChanged(
+                startState,
+                nextState
             )
         }
         Assert.assertEquals(
@@ -156,6 +165,18 @@ class RunningViewModelTest : BaseMockkTestClass() {
             TimerUiState(),
             runningViewModel.timerUiState.value
         )
+        verify(exactly = 1) {
+            timerSessionController.onTimeStateChanged(
+                startState,
+                nextState
+            )
+        }
         runningViewModel.pauseTimer()
+        verify(exactly = 1) {
+            timerSessionController.onTimeStateChanged(
+                startState,
+                nextState
+            )
+        }
     }
 }

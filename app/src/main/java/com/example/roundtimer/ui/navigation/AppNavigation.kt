@@ -1,14 +1,13 @@
 package com.example.roundtimer.ui.navigation
 
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
-import com.example.roundtimer.data.service.TimerForegroundService
+import com.example.roundtimer.MainActivityViewModel
 import com.example.roundtimer.ui.running.RunningScreen
 import com.example.roundtimer.ui.running.RunningViewModel
 import com.example.roundtimer.ui.savedTimers.SavedTimerScreen
@@ -17,8 +16,9 @@ import com.example.roundtimer.ui.start.StartScreen
 import com.example.roundtimer.ui.start.StartViewModel
 
 @Composable
-fun AppNavigation() {
-    val context = LocalContext.current.applicationContext
+fun AppNavigation(
+    mainActivityViewModel: MainActivityViewModel
+) {
     val backStack = rememberNavBackStack(StartScreenNavKey)
     fun popBackStack() {
         if (backStack.size > 1) {
@@ -26,8 +26,19 @@ fun AppNavigation() {
         }
     }
     fun stopTimerAndPop() {
-        TimerForegroundService.stop(context)
+        mainActivityViewModel.stopTimerSession()
         popBackStack()
+    }
+
+    fun navigateToRunningScreen(
+        roundInfoModel: RoundInfoModel,
+    ) {
+        mainActivityViewModel.startTimerSession()
+        backStack.add(
+            RunningScreenNavKey(
+                roundInfoModel = roundInfoModel,
+            )
+        )
     }
     NavDisplay(
         backStack = backStack,
@@ -45,12 +56,7 @@ fun AppNavigation() {
             entry<StartScreenNavKey> {
                 val startViewModel: StartViewModel = hiltViewModel()
                 StartScreen(
-                    navigateToRunningScreen = {
-                        TimerForegroundService.start(context)
-                        backStack.add(RunningScreenNavKey(
-                            roundInfoModel = it
-                        ))
-                    },
+                    navigateToRunningScreen = ::navigateToRunningScreen,
                     navigateToSavedTimersScreen = {
                         backStack.add(SavedTimersScreenNavKey)
                     },
@@ -73,12 +79,7 @@ fun AppNavigation() {
                 val savedTimersViewModel = hiltViewModel<SavedTimersViewModel>()
                 SavedTimerScreen(
                     onBackClick = ::popBackStack,
-                    navigateToRunningScreen = {
-                        TimerForegroundService.start(context)
-                        backStack.add(RunningScreenNavKey(
-                            roundInfoModel = it
-                        ))
-                    },
+                    navigateToRunningScreen = ::navigateToRunningScreen,
                     savedTimersViewModel = savedTimersViewModel
                 )
             }
