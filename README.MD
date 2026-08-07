@@ -116,7 +116,6 @@ app/src/
 
 ## Future Improvements
 
-- Add sound or vibration when a phase ends
 - Improve the UI
 - Integrate an AI Kit for a chat feature
 
