@@ -1,32 +1,51 @@
 package com.example.roundtimer.ui.navigation
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
-import com.example.roundtimer.domain.usecase.QuoteUseCase
-import com.example.roundtimer.domain.usecase.TimeUseCase
+import com.example.roundtimer.MainActivityViewModel
 import com.example.roundtimer.ui.running.RunningScreen
 import com.example.roundtimer.ui.running.RunningViewModel
 import com.example.roundtimer.ui.savedTimers.SavedTimerScreen
 import com.example.roundtimer.ui.savedTimers.SavedTimersViewModel
 import com.example.roundtimer.ui.start.StartScreen
 import com.example.roundtimer.ui.start.StartViewModel
-import dagger.hilt.android.lifecycle.HiltViewModel
 
 @Composable
-fun AppNavigation() {
+fun AppNavigation(
+    mainActivityViewModel: MainActivityViewModel
+) {
     val backStack = rememberNavBackStack(StartScreenNavKey)
+    fun popBackStack() {
+        if (backStack.size > 1) {
+            backStack.removeAt(backStack.lastIndex)
+        }
+    }
+    fun stopTimerAndPop() {
+        mainActivityViewModel.stopTimerSession()
+        popBackStack()
+    }
+
+    fun navigateToRunningScreen(
+        roundInfoModel: RoundInfoModel,
+    ) {
+        mainActivityViewModel.startTimerSession()
+        backStack.add(
+            RunningScreenNavKey(
+                roundInfoModel = roundInfoModel,
+            )
+        )
+    }
     NavDisplay(
         backStack = backStack,
         onBack = {
-            if (backStack.size > 1) {
-                backStack.removeAt(backStack.lastIndex)
+            when(backStack.lastOrNull()) {
+                is RunningScreenNavKey -> stopTimerAndPop()
+                else -> popBackStack()
             }
         },
         entryDecorators = listOf(
@@ -37,11 +56,7 @@ fun AppNavigation() {
             entry<StartScreenNavKey> {
                 val startViewModel: StartViewModel = hiltViewModel()
                 StartScreen(
-                    navigateToRunningScreen = {
-                        backStack.add(RunningScreenNavKey(
-                            roundInfoModel = it
-                        ))
-                    },
+                    navigateToRunningScreen = ::navigateToRunningScreen,
                     navigateToSavedTimersScreen = {
                         backStack.add(SavedTimersScreenNavKey)
                     },
@@ -56,27 +71,15 @@ fun AppNavigation() {
                 )
                 RunningScreen(
                     roundInfoModel = it.roundInfoModel,
-                    onBackClick = {
-                        if (backStack.size > 1) {
-                            backStack.removeAt(backStack.lastIndex)
-                        }
-                    },
+                    onBackClick = ::stopTimerAndPop,
                     runningViewModel = runningViewModel
                 )
             }
             entry<SavedTimersScreenNavKey> {
                 val savedTimersViewModel = hiltViewModel<SavedTimersViewModel>()
                 SavedTimerScreen(
-                    onBackClick = {
-                        if (backStack.size > 1) {
-                            backStack.removeAt(backStack.lastIndex)
-                        }
-                    },
-                    navigateToRunningScreen = {
-                        backStack.add(RunningScreenNavKey(
-                            roundInfoModel = it
-                        ))
-                    },
+                    onBackClick = ::popBackStack,
+                    navigateToRunningScreen = ::navigateToRunningScreen,
                     savedTimersViewModel = savedTimersViewModel
                 )
             }
