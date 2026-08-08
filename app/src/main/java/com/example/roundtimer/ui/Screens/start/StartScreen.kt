@@ -1,4 +1,4 @@
-package com.example.roundtimer.ui.start
+package com.example.roundtimer.ui.Screens.start
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -29,7 +29,6 @@ import com.example.roundtimer.ui.navigation.RoundInfoModel
 fun StartScreen(
     modifier: Modifier = Modifier,
     navigateToRunningScreen : (RoundInfoModel) -> Unit,
-    navigateToSavedTimersScreen : () -> Unit,
     startViewModel: StartViewModel,
 ) {
     var showSaveDialog by rememberSaveable {
@@ -125,14 +124,6 @@ fun StartScreen(
             }
         ) {
             Text("Save")
-        }
-        Button(
-            modifier = Modifier.padding(
-                top = 12.dp
-            ),
-            onClick = navigateToSavedTimersScreen
-        ) {
-            Text("Saved List")
         }
     }
     if (showSaveDialog) {

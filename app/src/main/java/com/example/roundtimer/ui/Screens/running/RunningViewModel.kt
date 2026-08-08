@@ -1,4 +1,4 @@
-package com.example.roundtimer.ui.running
+package com.example.roundtimer.ui.Screens.running
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

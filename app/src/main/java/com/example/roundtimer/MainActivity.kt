@@ -48,19 +48,9 @@ class MainActivity : ComponentActivity() {
                 }
             }
             RoundTimerTheme {
-                Scaffold(
-                    modifier = Modifier.fillMaxSize()
-                ) { innerPadding ->
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(innerPadding)
-                    ) {
-                        AppNavigation(
-                            mainActivityViewModel = mainActivityViewModel
-                        )
-                    }
-                }
+                AppNavigation(
+                    mainActivityViewModel = mainActivityViewModel
+                )
             }
         }
     }

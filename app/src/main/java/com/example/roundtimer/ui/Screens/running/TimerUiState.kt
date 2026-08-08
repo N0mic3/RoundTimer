@@ -1,4 +1,4 @@
-package com.example.roundtimer.ui.running
+package com.example.roundtimer.ui.Screens.running
 
 import com.example.roundtimer.domain.model.TimeState
 import com.example.roundtimer.domain.model.TimerPhase

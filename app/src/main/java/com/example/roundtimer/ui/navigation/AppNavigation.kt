@@ -1,6 +1,18 @@
 package com.example.roundtimer.ui.navigation
 
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.CenterAlignedTopAppBar
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.entryProvider
@@ -8,26 +20,31 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import com.example.roundtimer.MainActivityViewModel
-import com.example.roundtimer.ui.running.RunningScreen
-import com.example.roundtimer.ui.running.RunningViewModel
-import com.example.roundtimer.ui.savedTimers.SavedTimerScreen
-import com.example.roundtimer.ui.savedTimers.SavedTimersViewModel
-import com.example.roundtimer.ui.start.StartScreen
-import com.example.roundtimer.ui.start.StartViewModel
+import com.example.roundtimer.R
+import com.example.roundtimer.ui.Screens.aiCoachScreen.AiCoachScreen
+import com.example.roundtimer.ui.Screens.running.RunningScreen
+import com.example.roundtimer.ui.Screens.running.RunningViewModel
+import com.example.roundtimer.ui.Screens.savedTimers.SavedTimerScreen
+import com.example.roundtimer.ui.Screens.savedTimers.SavedTimersViewModel
+import com.example.roundtimer.ui.Screens.start.StartScreen
+import com.example.roundtimer.ui.Screens.start.StartViewModel
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppNavigation(
     mainActivityViewModel: MainActivityViewModel
 ) {
     val backStack = rememberNavBackStack(StartScreenNavKey)
-    fun popBackStack() {
+    fun handleBackNavigation() {
         if (backStack.size > 1) {
+            when (backStack.lastOrNull()) {
+                is RunningScreenNavKey -> {
+                    mainActivityViewModel.stopTimerSession()
+                }
+                else -> {}
+            }
             backStack.removeAt(backStack.lastIndex)
         }
-    }
-    fun stopTimerAndPop() {
-        mainActivityViewModel.stopTimerSession()
-        popBackStack()
     }
 
     fun navigateToRunningScreen(
@@ -40,49 +57,94 @@ fun AppNavigation(
             )
         )
     }
-    NavDisplay(
-        backStack = backStack,
-        onBack = {
-            when(backStack.lastOrNull()) {
-                is RunningScreenNavKey -> stopTimerAndPop()
-                else -> popBackStack()
-            }
-        },
-        entryDecorators = listOf(
-            rememberSaveableStateHolderNavEntryDecorator(),
-            rememberViewModelStoreNavEntryDecorator()
-        ),
-        entryProvider = entryProvider {
-            entry<StartScreenNavKey> {
-                val startViewModel: StartViewModel = hiltViewModel()
-                StartScreen(
-                    navigateToRunningScreen = ::navigateToRunningScreen,
-                    navigateToSavedTimersScreen = {
-                        backStack.add(SavedTimersScreenNavKey)
-                    },
-                    startViewModel = startViewModel
-                )
-            }
-            entry<RunningScreenNavKey> {
-                val runningViewModel: RunningViewModel = hiltViewModel<RunningViewModel, RunningViewModel.Factory>(
-                    creationCallback = { factory ->
-                        factory.create(it.roundInfoModel.toTimeSettings())
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = {
+                    Text(
+                        text = backStack.lastOrNull()?.let {
+                            (it as? Screens)?.screenTitle
+                        } ?: "Unknown Screen"
+                    )
+                },
+                navigationIcon = {
+                    if (backStack.size > 1) {
+                        IconButton(
+                            onClick = ::handleBackNavigation
+                        ) {
+                            Icon(
+                                painter = painterResource(R.drawable.ic_left_arrow),
+                                contentDescription = "back button"
+                            )
+                        }
                     }
-                )
-                RunningScreen(
-                    roundInfoModel = it.roundInfoModel,
-                    onBackClick = ::stopTimerAndPop,
-                    runningViewModel = runningViewModel
-                )
-            }
-            entry<SavedTimersScreenNavKey> {
-                val savedTimersViewModel = hiltViewModel<SavedTimersViewModel>()
-                SavedTimerScreen(
-                    onBackClick = ::popBackStack,
-                    navigateToRunningScreen = ::navigateToRunningScreen,
-                    savedTimersViewModel = savedTimersViewModel
-                )
-            }
+                },
+                actions = {
+                    (backStack.lastOrNull() as? StartScreenNavKey)?.let {
+                        Icon(
+                            painter = painterResource(R.drawable.ic_ai_robot),
+                            contentDescription = "AI Coach button",
+                            modifier = Modifier.clickable {
+                                backStack.add(AICoachScreenNavKey)
+                            }
+                        )
+                        Icon(
+                            painter = painterResource(R.drawable.ic_list),
+                            contentDescription = "Saved Timers button",
+                            modifier = Modifier.clickable {
+                                backStack.add(SavedTimersScreenNavKey)
+                            }
+                        )
+                    }
+                }
+            )
         }
-    )
+    ) { innerPadding ->
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(innerPadding)
+        ) {
+            NavDisplay(
+                backStack = backStack,
+                onBack = ::handleBackNavigation,
+                entryDecorators = listOf(
+                    rememberSaveableStateHolderNavEntryDecorator(),
+                    rememberViewModelStoreNavEntryDecorator()
+                ),
+                entryProvider = entryProvider {
+                    entry<StartScreenNavKey> {
+                        val startViewModel: StartViewModel = hiltViewModel()
+                        StartScreen(
+                            navigateToRunningScreen = ::navigateToRunningScreen,
+                            startViewModel = startViewModel
+                        )
+                    }
+                    entry<RunningScreenNavKey> {
+                        val runningViewModel: RunningViewModel = hiltViewModel<RunningViewModel, RunningViewModel.Factory>(
+                            creationCallback = { factory ->
+                                factory.create(it.roundInfoModel.toTimeSettings())
+                            }
+                        )
+                        RunningScreen(
+                            roundInfoModel = it.roundInfoModel,
+                            runningViewModel = runningViewModel
+                        )
+                    }
+                    entry<SavedTimersScreenNavKey> {
+                        val savedTimersViewModel = hiltViewModel<SavedTimersViewModel>()
+                        SavedTimerScreen(
+                            navigateToRunningScreen = ::navigateToRunningScreen,
+                            savedTimersViewModel = savedTimersViewModel
+                        )
+                    }
+
+                    entry<AICoachScreenNavKey> {
+                        AiCoachScreen()
+                    }
+                }
+            )
+        }
+    }
 }

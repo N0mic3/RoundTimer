@@ -6,6 +6,8 @@ import com.example.roundtimer.domain.model.TimeSettings
 import com.example.roundtimer.domain.usecase.QuoteUseCase
 import com.example.roundtimer.domain.usecase.SavedTimerUseCase
 import com.example.roundtimer.testutil.MainDispatcherRule
+import com.example.roundtimer.ui.Screens.start.QuoteUiState
+import com.example.roundtimer.ui.Screens.start.StartViewModel
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK

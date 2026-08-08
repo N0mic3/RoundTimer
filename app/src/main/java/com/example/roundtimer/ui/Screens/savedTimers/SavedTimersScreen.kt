@@ -1,4 +1,4 @@
-package com.example.roundtimer.ui.savedTimers
+package com.example.roundtimer.ui.Screens.savedTimers
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -29,7 +29,6 @@ import com.example.roundtimer.ui.navigation.RoundInfoModel
 
 @Composable
 fun SavedTimerScreen(
-    onBackClick: () -> Unit,
     navigateToRunningScreen : (RoundInfoModel) -> Unit,
     savedTimersViewModel: SavedTimersViewModel
 ) {
@@ -46,49 +45,35 @@ fun SavedTimerScreen(
         mutableStateOf<Int?>(null)
     }
     val saveTimeUiState = savedTimersViewModel.saveTimeUiState.collectAsStateWithLifecycle()
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+    LazyColumn(
+        modifier = Modifier
+            .fillMaxSize(),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        LazyColumn(
-            modifier = Modifier
-                .weight(1f)
-                .fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
-            itemsIndexed(
-                items = saveTimeUiState.value.savedTimeList,
-                key = { _, timer -> timer.id }
-            ) { index, timer ->
-                TimerRow(
-                    timer = timer,
-                    startOnclick = {
-                        navigateToRunningScreen.invoke(
-                            RoundInfoModel(
-                                workDuration = timer.timeSettings.workDuration,
-                                restDuration = timer.timeSettings.restDuration,
-                                roundCount = timer.timeSettings.roundCount
-                            )
+        itemsIndexed(
+            items = saveTimeUiState.value.savedTimeList,
+            key = { _, timer -> timer.id }
+        ) { index, timer ->
+            TimerRow(
+                timer = timer,
+                startOnclick = {
+                    navigateToRunningScreen.invoke(
+                        RoundInfoModel(
+                            workDuration = timer.timeSettings.workDuration,
+                            restDuration = timer.timeSettings.restDuration,
+                            roundCount = timer.timeSettings.roundCount
                         )
-                    },
-                    updateOnclick = {
-                        currentPosition = index
-                        timerName = timer.name
-                        showUpdateDialog = true
-                    },
-                    deleteOnclick = {
-                        currentPosition = index
-                        showDeleteDialog = true
-                    },
-                )
-            }
-        }
-        Button(
-            onClick = onBackClick
-        ) {
-            Text(
-                text = "back"
+                    )
+                },
+                updateOnclick = {
+                    currentPosition = index
+                    timerName = timer.name
+                    showUpdateDialog = true
+                },
+                deleteOnclick = {
+                    currentPosition = index
+                    showDeleteDialog = true
+                },
             )
         }
     }

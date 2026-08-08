@@ -14,6 +14,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.style.TextAlign
 
 @Composable
 fun DurationPicker(
@@ -31,9 +32,15 @@ fun DurationPicker(
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = title
+            modifier = Modifier
+                .weight(1f),
+            text = title,
+            textAlign = TextAlign.End
         )
-        Box {
+        Box(
+            modifier = Modifier
+                .weight(1f)
+        ) {
             OutlinedButton(
                 onClick = {
                     showPicker = true

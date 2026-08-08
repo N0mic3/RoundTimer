@@ -1,4 +1,4 @@
-package com.example.roundtimer.ui.running
+package com.example.roundtimer.ui.Screens.running
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -19,7 +19,6 @@ import com.example.roundtimer.utils.Utils.formatTime
 @Composable
 fun RunningScreen(
     roundInfoModel: RoundInfoModel,
-    onBackClick: () -> Unit,
     runningViewModel: RunningViewModel
 ) {
     val timerUiState = runningViewModel.timerUiState.collectAsStateWithLifecycle()
@@ -62,13 +61,6 @@ fun RunningScreen(
                     timerUiState.value.timeState.isRunning -> "Pause"
                     else -> "Resume"
                 }
-            )
-        }
-        Button(
-            onClick = onBackClick
-        ) {
-            Text(
-                text = "Back"
             )
         }
     }
