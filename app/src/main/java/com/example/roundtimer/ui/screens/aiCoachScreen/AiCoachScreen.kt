@@ -70,6 +70,11 @@ fun AiCoachScreen(
                     Text("AI Coach is thinking...")
                 }
             }
+            uiState.errorMessage?.let { errorMessage ->
+                item {
+                    Text(errorMessage)
+                }
+            }
         }
         OutlinedTextField(
             modifier = Modifier.fillMaxWidth()

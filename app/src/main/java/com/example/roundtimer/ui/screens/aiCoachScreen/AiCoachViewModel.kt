@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.roundtimer.domain.usecase.GetAiCoachReplyUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -36,22 +35,32 @@ class AiCoachViewModel @Inject constructor(
                                 text = messageText,
                                 isFromUser = true
                             ),
-                            isLoading = true
+                            isLoading = true,
+                            errorMessage = null,
                         )
                     }
                     viewModelScope.launch {
-                        val replay = getAiCoachReplyUseCase.getReply(
-                            userMessage = messageText
-                        )
-                        _aiCoachUiState.update {
-                            it.copy(
-                                input = "",
-                                messages = it.messages + CoachMessage(
-                                    text = replay.message,
-                                    isFromUser = false,
-                                ),
-                                isLoading = false
+                        try {
+                            val reply = getAiCoachReplyUseCase.getReply(
+                                userMessage = messageText
                             )
+                            _aiCoachUiState.update {
+                                it.copy(
+                                    input = "",
+                                    messages = it.messages + CoachMessage(
+                                        text = reply.message,
+                                        isFromUser = false,
+                                    ),
+                                    isLoading = false
+                                )
+                            }
+                        } catch (_: Exception) {
+                            _aiCoachUiState.update {
+                                it.copy(
+                                    isLoading = false,
+                                    errorMessage = "Unable to reach AI Coach. Please try again.",
+                                )
+                            }
                         }
                     }
                 }

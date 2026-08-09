@@ -8,5 +8,6 @@ data class AiCoachUiState(
             isFromUser = false,
         )
     ),
-    val isLoading: Boolean = false
+    val isLoading: Boolean = false,
+    val errorMessage: String? = null,
 )
