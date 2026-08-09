@@ -1,4 +1,4 @@
-package com.example.roundtimer.ui.Screens.start
+package com.example.roundtimer.ui.screens.start
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -75,8 +75,9 @@ fun StartScreen(
         )
         DurationPicker(
             title = "Work Duration: ",
-            startValue = workDuration,
+            startValue = 5,
             endValue = 60,
+            currentValue = workDuration,
             step = 5,
             units = "Seconds",
             onClick = {
@@ -85,8 +86,9 @@ fun StartScreen(
         )
         DurationPicker(
             title = "Rest Duration: ",
-            startValue = restDuration,
+            startValue = 5,
             endValue = 60,
+            currentValue = restDuration,
             step = 5,
             units = "Seconds",
             onClick = {
@@ -95,8 +97,9 @@ fun StartScreen(
         )
         DurationPicker(
             title = "Rounds: ",
-            startValue = roundCount,
+            startValue = 1,
             endValue = 20,
+            currentValue = roundCount,
             step = 1,
             units = "Rounds",
             onClick = {

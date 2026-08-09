@@ -22,6 +22,7 @@ fun DurationPicker(
     title: String,
     startValue: Int,
     endValue: Int,
+    currentValue: Int,
     step: Int,
     units: String,
     onClick: (Int) -> Unit,
@@ -46,7 +47,7 @@ fun DurationPicker(
                     showPicker = true
                 },
             ) {
-                Text("$startValue $units")
+                Text("$currentValue $units")
             }
             DropdownMenu(
                 expanded = showPicker,

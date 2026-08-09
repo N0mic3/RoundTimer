@@ -1,4 +1,4 @@
-package com.example.roundtimer.ui.Screens.savedTimers
+package com.example.roundtimer.ui.screens.savedTimers
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column

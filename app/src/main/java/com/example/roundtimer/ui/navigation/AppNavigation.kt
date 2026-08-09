@@ -21,13 +21,14 @@ import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import com.example.roundtimer.MainActivityViewModel
 import com.example.roundtimer.R
-import com.example.roundtimer.ui.Screens.aiCoachScreen.AiCoachScreen
-import com.example.roundtimer.ui.Screens.running.RunningScreen
-import com.example.roundtimer.ui.Screens.running.RunningViewModel
-import com.example.roundtimer.ui.Screens.savedTimers.SavedTimerScreen
-import com.example.roundtimer.ui.Screens.savedTimers.SavedTimersViewModel
-import com.example.roundtimer.ui.Screens.start.StartScreen
-import com.example.roundtimer.ui.Screens.start.StartViewModel
+import com.example.roundtimer.ui.screens.aiCoachScreen.AiCoachScreen
+import com.example.roundtimer.ui.screens.aiCoachScreen.AiCoachViewModel
+import com.example.roundtimer.ui.screens.running.RunningScreen
+import com.example.roundtimer.ui.screens.running.RunningViewModel
+import com.example.roundtimer.ui.screens.savedTimers.SavedTimerScreen
+import com.example.roundtimer.ui.screens.savedTimers.SavedTimersViewModel
+import com.example.roundtimer.ui.screens.start.StartScreen
+import com.example.roundtimer.ui.screens.start.StartViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -141,7 +142,10 @@ fun AppNavigation(
                     }
 
                     entry<AICoachScreenNavKey> {
-                        AiCoachScreen()
+                        val aiCoachViewModel: AiCoachViewModel = hiltViewModel()
+                        AiCoachScreen(
+                            aiCoachViewModel = aiCoachViewModel
+                        )
                     }
                 }
             )

@@ -1,4 +1,4 @@
-package com.example.roundtimer.ui.Screens.start
+package com.example.roundtimer.ui.screens.start
 
 data class QuoteUiState(
     val data: String = "",
