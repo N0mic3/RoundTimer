@@ -1,9 +1,11 @@
 package com.example.roundtimer.di
 
 import com.example.roundtimer.data.repository.AiCoachRepositoryImpl
+import com.example.roundtimer.data.repository.AuthRepositoryImpl
 import com.example.roundtimer.data.repository.QuoteRepositoryImpl
 import com.example.roundtimer.data.repository.SavedTimerRepositoryImpl
 import com.example.roundtimer.domain.repository.AiCoachRepository
+import com.example.roundtimer.domain.repository.AuthRepository
 import com.example.roundtimer.domain.repository.QuoteRepository
 import com.example.roundtimer.domain.repository.SavedTimerRepository
 import dagger.Binds
@@ -33,4 +35,11 @@ abstract class RepositoryModule {
     abstract fun provideAiCoachRepository(
         implementation: AiCoachRepositoryImpl
     ) : AiCoachRepository
+
+
+    @Binds
+    @Singleton
+    abstract fun provideFirebaseAuthRepository(
+        implementation: AuthRepositoryImpl
+    ) : AuthRepository
 }
