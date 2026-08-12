@@ -14,3 +14,12 @@
 .externalNativeBuild
 .cxx
 local.properties
+
+# Personal Firebase project connection
+.firebaserc
+app/google-services.json
+
+# Cloud Function secrets
+functions/.env
+functions/.env.*
+!functions/.env.example

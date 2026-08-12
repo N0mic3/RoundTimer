@@ -6,6 +6,8 @@ import com.example.roundtimer.domain.model.TimeSettings
 import com.example.roundtimer.domain.model.TimerPhase
 import com.example.roundtimer.domain.usecase.TimeUseCase
 import com.example.roundtimer.testutil.MainDispatcherRule
+import com.example.roundtimer.ui.screens.running.RunningViewModel
+import com.example.roundtimer.ui.screens.running.TimerUiState
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.verify
