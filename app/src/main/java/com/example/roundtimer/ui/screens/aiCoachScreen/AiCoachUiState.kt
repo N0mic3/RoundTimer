@@ -10,4 +10,6 @@ data class AiCoachUiState(
     ),
     val isLoading: Boolean = false,
     val errorMessage: String? = null,
+    val isSignedIn: Boolean = false,
+    val isSigningIn: Boolean = false,
 )

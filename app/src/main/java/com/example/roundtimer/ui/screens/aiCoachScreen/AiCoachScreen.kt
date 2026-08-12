@@ -29,6 +29,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.roundtimer.R
+import com.example.roundtimer.ui.components.GoogleSignInButton
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
@@ -42,6 +43,21 @@ fun AiCoachScreen(
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
+        if (!uiState.isSignedIn) {
+            GoogleSignInButton(
+                isSigningIn = uiState.isSigningIn,
+                onCredentialReceived = { idToken ->
+                    aiCoachViewModel.onIntent(
+                        AiCoachIntent.GoogleCredentialReceived(idToken),
+                    )
+                },
+                onCredentialFailed = { message ->
+                    aiCoachViewModel.onIntent(
+                        AiCoachIntent.GoogleCredentialFailed(message),
+                    )
+                },
+            )
+        }
         LazyColumn(
             modifier = Modifier
                 .fillMaxWidth()
