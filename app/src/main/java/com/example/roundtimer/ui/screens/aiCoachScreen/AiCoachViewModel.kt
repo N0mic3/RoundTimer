@@ -65,11 +65,11 @@ class AiCoachViewModel @Inject constructor(
                                         isLoading = false
                                     )
                                 }
-                            } catch (_: Exception) {
+                            } catch (e: Exception) {
                                 _aiCoachUiState.update {
                                     it.copy(
                                         isLoading = false,
-                                        errorMessage = "Unable to reach AI Coach. Please try again.",
+                                        errorMessage = e.message ?: "Unable to reach AI Coach. Please try again.",
                                     )
                                 }
                             }

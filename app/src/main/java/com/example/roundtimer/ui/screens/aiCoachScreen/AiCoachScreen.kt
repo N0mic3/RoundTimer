@@ -1,5 +1,6 @@
 package com.example.roundtimer.ui.screens.aiCoachScreen
 
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
@@ -75,6 +76,7 @@ fun AiCoachScreen(
                 }
         ) {
             items(uiState.messages) { message ->
+                Log.d("MMM_Testing", "AiCoachScreen: ${message.text}")
                 Text(
                     modifier = Modifier.fillMaxWidth(),
                     text = message.text,
@@ -83,17 +85,24 @@ fun AiCoachScreen(
             }
             if (uiState.isLoading) {
                 item {
-                    Text("AI Coach is thinking...")
+                    Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = "AI Coach is thinking..."
+                    )
                 }
             }
             uiState.errorMessage?.let { errorMessage ->
                 item {
-                    Text(errorMessage)
+                    Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = errorMessage
+                    )
                 }
             }
         }
         OutlinedTextField(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
                 .padding(12.dp),
             value = uiState.input,
             onValueChange = {
