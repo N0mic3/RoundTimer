@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
@@ -117,9 +118,16 @@ fun AppNavigation(
                 entryProvider = entryProvider {
                     entry<StartScreenNavKey> {
                         val startViewModel: StartViewModel = hiltViewModel()
+                        val quoteUiState = startViewModel.stateUiState.collectAsStateWithLifecycle()
                         StartScreen(
                             navigateToRunningScreen = ::navigateToRunningScreen,
-                            startViewModel = startViewModel
+                            quoteUiState = quoteUiState.value,
+                            insertSavedTimer = { name, timeSetting ->
+                                startViewModel.insertSavedTimer(
+                                    name = name,
+                                    timeSettings = timeSetting
+                                )
+                            },
                         )
                     }
                     entry<RunningScreenNavKey> {

@@ -17,11 +17,12 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.roundtimer.domain.model.TimeSettings
 import com.example.roundtimer.ui.components.DurationPicker
 import com.example.roundtimer.ui.navigation.RoundInfoModel
 
@@ -29,7 +30,8 @@ import com.example.roundtimer.ui.navigation.RoundInfoModel
 fun StartScreen(
     modifier: Modifier = Modifier,
     navigateToRunningScreen : (RoundInfoModel) -> Unit,
-    startViewModel: StartViewModel,
+    quoteUiState: QuoteUiState,
+    insertSavedTimer: (String, TimeSettings) -> Unit,
 ) {
     var showSaveDialog by rememberSaveable {
         mutableStateOf(false)
@@ -37,7 +39,6 @@ fun StartScreen(
     var timerName by rememberSaveable {
         mutableStateOf("")
     }
-    val quoteUiState = startViewModel.stateUiState.collectAsStateWithLifecycle()
     var workDuration by rememberSaveable {
         mutableIntStateOf(5)
     }
@@ -71,7 +72,7 @@ fun StartScreen(
                 bottom = 12.dp
             ),
             textAlign = TextAlign.Center,
-            text = quoteUiState.value.data
+            text = quoteUiState.data
         )
         DurationPicker(
             title = "Work Duration: ",
@@ -141,6 +142,7 @@ fun StartScreen(
             },
             text = {
                 OutlinedTextField(
+                    modifier = Modifier.testTag("timer_name_input"),
                     value = timerName,
                     onValueChange = {
                         timerName = it
@@ -154,11 +156,9 @@ fun StartScreen(
             },
             confirmButton = {
                 TextButton(
+                    modifier = Modifier.testTag("alert_confirm_button"),
                     onClick = {
-                        startViewModel.insertSavedTimer(
-                            name = timerName.trim(),
-                            timeSettings = roundInfoModel.toTimeSettings()
-                        )
+                        insertSavedTimer(timerName.trim(), roundInfoModel.toTimeSettings())
                         timerName = ""
                         showSaveDialog = false
                     },
