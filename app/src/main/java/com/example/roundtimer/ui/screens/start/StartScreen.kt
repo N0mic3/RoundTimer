@@ -31,7 +31,7 @@ fun StartScreen(
     modifier: Modifier = Modifier,
     navigateToRunningScreen : (RoundInfoModel) -> Unit,
     quoteUiState: QuoteUiState,
-    insertSavedTimer: (String, TimeSettings) -> Unit,
+    insertSavedTimer: (TimeSettings, String) -> Unit,
 ) {
     var showSaveDialog by rememberSaveable {
         mutableStateOf(false)
@@ -158,7 +158,7 @@ fun StartScreen(
                 TextButton(
                     modifier = Modifier.testTag("alert_confirm_button"),
                     onClick = {
-                        insertSavedTimer(timerName.trim(), roundInfoModel.toTimeSettings())
+                        insertSavedTimer(roundInfoModel.toTimeSettings(), timerName.trim())
                         timerName = ""
                         showSaveDialog = false
                     },

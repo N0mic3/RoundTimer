@@ -35,25 +35,25 @@ import com.example.roundtimer.ui.components.GoogleSignInButton
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun AiCoachScreen(
-    aiCoachViewModel : AiCoachViewModel
+    aiCoachUiState : AiCoachUiState,
+    onIntent: (AiCoachIntent) -> Unit,
 ) {
-    val uiState by aiCoachViewModel.aiCoachUiState.collectAsStateWithLifecycle()
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
     val isKeyboardVisible = WindowInsets.isImeVisible
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        if (!uiState.isSignedIn) {
+        if (!aiCoachUiState.isSignedIn) {
             GoogleSignInButton(
-                isSigningIn = uiState.isSigningIn,
+                isSigningIn = aiCoachUiState.isSigningIn,
                 onCredentialReceived = { idToken ->
-                    aiCoachViewModel.onIntent(
+                    onIntent(
                         AiCoachIntent.GoogleCredentialReceived(idToken),
                     )
                 },
                 onCredentialFailed = { message ->
-                    aiCoachViewModel.onIntent(
+                    onIntent(
                         AiCoachIntent.GoogleCredentialFailed(message),
                     )
                 },
@@ -75,7 +75,7 @@ fun AiCoachScreen(
                     focusManager.clearFocus()
                 }
         ) {
-            items(uiState.messages) { message ->
+            items(aiCoachUiState.messages) { message ->
                 Log.d("MMM_Testing", "AiCoachScreen: ${message.text}")
                 Text(
                     modifier = Modifier.fillMaxWidth(),
@@ -83,7 +83,7 @@ fun AiCoachScreen(
                     textAlign = if (message.isFromUser) TextAlign.End else TextAlign.Start
                 )
             }
-            if (uiState.isLoading) {
+            if (aiCoachUiState.isLoading) {
                 item {
                     Text(
                         modifier = Modifier.fillMaxWidth(),
@@ -91,7 +91,7 @@ fun AiCoachScreen(
                     )
                 }
             }
-            uiState.errorMessage?.let { errorMessage ->
+            aiCoachUiState.errorMessage?.let { errorMessage ->
                 item {
                     Text(
                         modifier = Modifier.fillMaxWidth(),
@@ -104,9 +104,9 @@ fun AiCoachScreen(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(12.dp),
-            value = uiState.input,
+            value = aiCoachUiState.input,
             onValueChange = {
-                aiCoachViewModel.onIntent(
+                onIntent(
                     AiCoachIntent.InputChanged(it)
                 )
             },
@@ -116,16 +116,16 @@ fun AiCoachScreen(
             ),
             keyboardActions = KeyboardActions(
                 onSend = {
-                    aiCoachViewModel.onIntent(
+                    onIntent(
                         AiCoachIntent.SendClicked
                     )
                 }
             ),
             trailingIcon = {
                 IconButton(
-                    enabled = !uiState.isLoading && uiState.input.isNotBlank(),
+                    enabled = !aiCoachUiState.isLoading && aiCoachUiState.input.isNotBlank(),
                     onClick = {
-                        aiCoachViewModel.onIntent(
+                        onIntent(
                             AiCoachIntent.SendClicked
                         )
                     }

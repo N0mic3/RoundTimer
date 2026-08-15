@@ -112,7 +112,7 @@ class StartScreenTest {
                 StartScreen(
                     navigateToRunningScreen = {},
                     quoteUiState = quoteUiState
-                ) { name, timeSetting ->
+                ) { timeSetting, name ->
                     savedName = name
                     savedSettings = timeSetting
                 }

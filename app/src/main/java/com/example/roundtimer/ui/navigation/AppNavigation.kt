@@ -11,6 +11,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
@@ -118,16 +119,11 @@ fun AppNavigation(
                 entryProvider = entryProvider {
                     entry<StartScreenNavKey> {
                         val startViewModel: StartViewModel = hiltViewModel()
-                        val quoteUiState = startViewModel.stateUiState.collectAsStateWithLifecycle()
+                        val quoteUiState by startViewModel.stateUiState.collectAsStateWithLifecycle()
                         StartScreen(
                             navigateToRunningScreen = ::navigateToRunningScreen,
-                            quoteUiState = quoteUiState.value,
-                            insertSavedTimer = { name, timeSetting ->
-                                startViewModel.insertSavedTimer(
-                                    name = name,
-                                    timeSettings = timeSetting
-                                )
-                            },
+                            quoteUiState = quoteUiState,
+                            insertSavedTimer = startViewModel::insertSavedTimer,
                         )
                     }
                     entry<RunningScreenNavKey> {
@@ -143,16 +139,21 @@ fun AppNavigation(
                     }
                     entry<SavedTimersScreenNavKey> {
                         val savedTimersViewModel = hiltViewModel<SavedTimersViewModel>()
+                        val saveTimeUiState by savedTimersViewModel.saveTimeUiState.collectAsStateWithLifecycle()
                         SavedTimerScreen(
                             navigateToRunningScreen = ::navigateToRunningScreen,
-                            savedTimersViewModel = savedTimersViewModel
+                            saveTimeUiState = saveTimeUiState,
+                            updateSavedTimeList = savedTimersViewModel::updateSavedTimeList,
+                            deleteSavedTimer = savedTimersViewModel::deleteSavedTimer,
                         )
                     }
 
                     entry<AICoachScreenNavKey> {
                         val aiCoachViewModel: AiCoachViewModel = hiltViewModel()
+                        val aiCoachUiState by aiCoachViewModel.aiCoachUiState.collectAsStateWithLifecycle()
                         AiCoachScreen(
-                            aiCoachViewModel = aiCoachViewModel
+                            aiCoachUiState = aiCoachUiState,
+                            onIntent = aiCoachViewModel::onIntent
                         )
                     }
                 }
