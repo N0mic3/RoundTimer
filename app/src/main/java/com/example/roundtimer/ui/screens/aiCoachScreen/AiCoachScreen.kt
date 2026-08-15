@@ -19,16 +19,15 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.roundtimer.R
 import com.example.roundtimer.ui.components.GoogleSignInButton
 
@@ -103,7 +102,8 @@ fun AiCoachScreen(
         OutlinedTextField(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(12.dp),
+                .padding(12.dp)
+                .testTag("user_send_text_field"),
             value = aiCoachUiState.input,
             onValueChange = {
                 onIntent(
@@ -123,6 +123,7 @@ fun AiCoachScreen(
             ),
             trailingIcon = {
                 IconButton(
+                    modifier = Modifier.testTag("send_icon"),
                     enabled = !aiCoachUiState.isLoading && aiCoachUiState.input.isNotBlank(),
                     onClick = {
                         onIntent(

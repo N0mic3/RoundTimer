@@ -5,7 +5,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
@@ -30,6 +32,9 @@ fun GoogleSignInButton(
     val serverClientId = stringResource(R.string.default_web_client_id)
 
     Button(
+        modifier = Modifier.testTag(
+            "google_sign_in_button"
+        ),
         enabled = !isSigningIn,
         onClick = {
             coroutineScope.launch {
