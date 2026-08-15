@@ -132,9 +132,11 @@ fun AppNavigation(
                                 factory.create(it.roundInfoModel.toTimeSettings())
                             }
                         )
+                        val timerUiState by runningViewModel.timerUiState.collectAsStateWithLifecycle()
                         RunningScreen(
                             roundInfoModel = it.roundInfoModel,
-                            runningViewModel = runningViewModel
+                            timerUiState = timerUiState,
+                            onMainButtonClick = runningViewModel::onMainButtonClick,
                         )
                     }
                     entry<SavedTimersScreenNavKey> {
