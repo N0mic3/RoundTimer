@@ -19,41 +19,40 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.roundtimer.R
 import com.example.roundtimer.ui.components.GoogleSignInButton
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun AiCoachScreen(
-    aiCoachViewModel : AiCoachViewModel
+    aiCoachUiState : AiCoachUiState,
+    onIntent: (AiCoachIntent) -> Unit,
 ) {
-    val uiState by aiCoachViewModel.aiCoachUiState.collectAsStateWithLifecycle()
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
     val isKeyboardVisible = WindowInsets.isImeVisible
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        if (!uiState.isSignedIn) {
+        if (!aiCoachUiState.isSignedIn) {
             GoogleSignInButton(
-                isSigningIn = uiState.isSigningIn,
+                isSigningIn = aiCoachUiState.isSigningIn,
                 onCredentialReceived = { idToken ->
-                    aiCoachViewModel.onIntent(
+                    onIntent(
                         AiCoachIntent.GoogleCredentialReceived(idToken),
                     )
                 },
                 onCredentialFailed = { message ->
-                    aiCoachViewModel.onIntent(
+                    onIntent(
                         AiCoachIntent.GoogleCredentialFailed(message),
                     )
                 },
@@ -75,7 +74,7 @@ fun AiCoachScreen(
                     focusManager.clearFocus()
                 }
         ) {
-            items(uiState.messages) { message ->
+            items(aiCoachUiState.messages) { message ->
                 Log.d("MMM_Testing", "AiCoachScreen: ${message.text}")
                 Text(
                     modifier = Modifier.fillMaxWidth(),
@@ -83,7 +82,7 @@ fun AiCoachScreen(
                     textAlign = if (message.isFromUser) TextAlign.End else TextAlign.Start
                 )
             }
-            if (uiState.isLoading) {
+            if (aiCoachUiState.isLoading) {
                 item {
                     Text(
                         modifier = Modifier.fillMaxWidth(),
@@ -91,7 +90,7 @@ fun AiCoachScreen(
                     )
                 }
             }
-            uiState.errorMessage?.let { errorMessage ->
+            aiCoachUiState.errorMessage?.let { errorMessage ->
                 item {
                     Text(
                         modifier = Modifier.fillMaxWidth(),
@@ -103,10 +102,11 @@ fun AiCoachScreen(
         OutlinedTextField(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(12.dp),
-            value = uiState.input,
+                .padding(12.dp)
+                .testTag("user_send_text_field"),
+            value = aiCoachUiState.input,
             onValueChange = {
-                aiCoachViewModel.onIntent(
+                onIntent(
                     AiCoachIntent.InputChanged(it)
                 )
             },
@@ -116,16 +116,17 @@ fun AiCoachScreen(
             ),
             keyboardActions = KeyboardActions(
                 onSend = {
-                    aiCoachViewModel.onIntent(
+                    onIntent(
                         AiCoachIntent.SendClicked
                     )
                 }
             ),
             trailingIcon = {
                 IconButton(
-                    enabled = !uiState.isLoading && uiState.input.isNotBlank(),
+                    modifier = Modifier.testTag("send_icon"),
+                    enabled = !aiCoachUiState.isLoading && aiCoachUiState.input.isNotBlank(),
                     onClick = {
-                        aiCoachViewModel.onIntent(
+                        onIntent(
                             AiCoachIntent.SendClicked
                         )
                     }

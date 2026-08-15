@@ -22,6 +22,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.autofill.createFromText
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.roundtimer.domain.model.SavedTimer
@@ -30,8 +32,11 @@ import com.example.roundtimer.ui.navigation.RoundInfoModel
 @Composable
 fun SavedTimerScreen(
     navigateToRunningScreen : (RoundInfoModel) -> Unit,
-    savedTimersViewModel: SavedTimersViewModel
-) {
+    saveTimeUiState : SavedTimersUiState,
+    updateSavedTimeList: (SavedTimer) -> Unit,
+    deleteSavedTimer: (SavedTimer) -> Unit,
+
+    ) {
     var timerName by rememberSaveable {
         mutableStateOf("")
     }
@@ -44,14 +49,13 @@ fun SavedTimerScreen(
     var currentPosition by rememberSaveable {
         mutableStateOf<Int?>(null)
     }
-    val saveTimeUiState = savedTimersViewModel.saveTimeUiState.collectAsStateWithLifecycle()
     LazyColumn(
         modifier = Modifier
             .fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         itemsIndexed(
-            items = saveTimeUiState.value.savedTimeList,
+            items = saveTimeUiState.savedTimeList,
             key = { _, timer -> timer.id }
         ) { index, timer ->
             TimerRow(
@@ -78,7 +82,7 @@ fun SavedTimerScreen(
         }
     }
     currentPosition?.let { index ->
-        saveTimeUiState.value.savedTimeList.getOrNull(index)
+        saveTimeUiState.savedTimeList.getOrNull(index)
     }?.let { timer ->
         if (showUpdateDialog) {
             AlertDialog(
@@ -89,6 +93,9 @@ fun SavedTimerScreen(
                 },
                 text = {
                     OutlinedTextField(
+                        modifier = Modifier.testTag(
+                            "update_name_text_field"
+                        ),
                         value = timerName,
                         onValueChange = {
                             timerName = it
@@ -112,8 +119,8 @@ fun SavedTimerScreen(
                 confirmButton = {
                     TextButton(
                         onClick = {
-                            savedTimersViewModel.updateSavedTimeList(
-                                savedTimer = timer.copy(
+                            updateSavedTimeList(
+                                timer.copy(
                                     name = timerName.trim()
                                 )
                             )
@@ -151,8 +158,8 @@ fun SavedTimerScreen(
                 confirmButton = {
                     TextButton(
                         onClick = {
-                            savedTimersViewModel.deleteSavedTimer(
-                                savedTimer = timer
+                            deleteSavedTimer(
+                                timer
                             )
                             currentPosition = null
                             showDeleteDialog = false
@@ -174,7 +181,7 @@ private fun TimerRow(
     deleteOnclick: () -> Unit,
 ) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier.fillMaxWidth().testTag("timer_row"),
     ) {
         Row {
             Column(

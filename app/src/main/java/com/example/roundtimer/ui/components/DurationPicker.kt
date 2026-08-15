@@ -14,6 +14,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
 
 @Composable
@@ -29,7 +30,7 @@ fun DurationPicker(
 ) {
     var showPicker by rememberSaveable { mutableStateOf(false) }
     Row(
-        modifier = modifier,
+        modifier = modifier.testTag("duration_picker"),
         verticalAlignment = Alignment.CenterVertically
     ) {
         Text(

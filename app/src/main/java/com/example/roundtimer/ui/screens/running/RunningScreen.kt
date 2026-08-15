@@ -11,7 +11,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.roundtimer.domain.model.TimerPhase
 import com.example.roundtimer.ui.navigation.RoundInfoModel
 import com.example.roundtimer.utils.Utils.formatTime
@@ -19,9 +18,9 @@ import com.example.roundtimer.utils.Utils.formatTime
 @Composable
 fun RunningScreen(
     roundInfoModel: RoundInfoModel,
-    runningViewModel: RunningViewModel
+    timerUiState: TimerUiState,
+    onMainButtonClick: () -> Unit,
 ) {
-    val timerUiState = runningViewModel.timerUiState.collectAsStateWithLifecycle()
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
@@ -31,7 +30,7 @@ fun RunningScreen(
             modifier = Modifier.padding(
                 bottom = 20.dp
             ),
-            text = when (timerUiState.value.timeState.phase) {
+            text = when (timerUiState.timeState.phase) {
                 TimerPhase.Ready -> "Get Ready"
                 TimerPhase.Work -> "Work"
                 TimerPhase.Rest -> "Rest"
@@ -44,21 +43,19 @@ fun RunningScreen(
                 bottom = 12.dp
             ),
             fontSize = 20.sp,
-            text = "Round ${timerUiState.value.timeState.currentRoundIndex + 1} / ${roundInfoModel.roundCount}"
+            text = "Round ${timerUiState.timeState.currentRoundIndex + 1} / ${roundInfoModel.roundCount}"
         )
         Text(
             fontSize = 20.sp,
-            text = formatTime(timerUiState.value.timeState.secondsLeft)
+            text = formatTime(timerUiState.timeState.secondsLeft)
         )
         Button(
-            onClick = {
-                runningViewModel.onMainButtonClick()
-            }
+            onClick = onMainButtonClick
         ) {
             Text(
                 text = when {
-                    timerUiState.value.timeState.phase == TimerPhase.Complete -> "Reset"
-                    timerUiState.value.timeState.isRunning -> "Pause"
+                    timerUiState.timeState.phase == TimerPhase.Complete -> "Reset"
+                    timerUiState.timeState.isRunning -> "Pause"
                     else -> "Resume"
                 }
             )

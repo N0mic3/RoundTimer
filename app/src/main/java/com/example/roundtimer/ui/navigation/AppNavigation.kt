@@ -11,9 +11,11 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.entryProvider
 import androidx.navigation3.runtime.rememberNavBackStack
@@ -117,9 +119,11 @@ fun AppNavigation(
                 entryProvider = entryProvider {
                     entry<StartScreenNavKey> {
                         val startViewModel: StartViewModel = hiltViewModel()
+                        val quoteUiState by startViewModel.stateUiState.collectAsStateWithLifecycle()
                         StartScreen(
                             navigateToRunningScreen = ::navigateToRunningScreen,
-                            startViewModel = startViewModel
+                            quoteUiState = quoteUiState,
+                            insertSavedTimer = startViewModel::insertSavedTimer,
                         )
                     }
                     entry<RunningScreenNavKey> {
@@ -128,23 +132,30 @@ fun AppNavigation(
                                 factory.create(it.roundInfoModel.toTimeSettings())
                             }
                         )
+                        val timerUiState by runningViewModel.timerUiState.collectAsStateWithLifecycle()
                         RunningScreen(
                             roundInfoModel = it.roundInfoModel,
-                            runningViewModel = runningViewModel
+                            timerUiState = timerUiState,
+                            onMainButtonClick = runningViewModel::onMainButtonClick,
                         )
                     }
                     entry<SavedTimersScreenNavKey> {
                         val savedTimersViewModel = hiltViewModel<SavedTimersViewModel>()
+                        val saveTimeUiState by savedTimersViewModel.saveTimeUiState.collectAsStateWithLifecycle()
                         SavedTimerScreen(
                             navigateToRunningScreen = ::navigateToRunningScreen,
-                            savedTimersViewModel = savedTimersViewModel
+                            saveTimeUiState = saveTimeUiState,
+                            updateSavedTimeList = savedTimersViewModel::updateSavedTimeList,
+                            deleteSavedTimer = savedTimersViewModel::deleteSavedTimer,
                         )
                     }
 
                     entry<AICoachScreenNavKey> {
                         val aiCoachViewModel: AiCoachViewModel = hiltViewModel()
+                        val aiCoachUiState by aiCoachViewModel.aiCoachUiState.collectAsStateWithLifecycle()
                         AiCoachScreen(
-                            aiCoachViewModel = aiCoachViewModel
+                            aiCoachUiState = aiCoachUiState,
+                            onIntent = aiCoachViewModel::onIntent
                         )
                     }
                 }
