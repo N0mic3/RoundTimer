@@ -10,7 +10,7 @@ The app applies MVVM and Clean Architecture principles with Hilt dependency inje
 
 - Configure work duration from 5 to 60 seconds.
 - Configure rest duration from 5 to 60 seconds.
-- Configure 1 to 10 timer rounds.
+- Configure 1 to 20 timer rounds.
 - Run work/rest sessions with a ready countdown.
 - Pause, resume, and reset an active timer.
 - Complete automatically after the final work interval.
@@ -43,10 +43,24 @@ The Android app sends only the user message. The Firebase Function validates the
 
 ## Testing Tools
 
+### Unit Testing
+
 - JUnit 4 for unit tests and assertions.
 - MockK for mocking dependencies and verifying interactions.
 - `kotlinx-coroutines-test` for testing suspend functions and controlling coroutine execution.
 - `Clock.fixed()` for deterministic date-based tests.
+
+### Compose UI Testing
+
+- Jetpack Compose UI Test framework for instrumented screen and component tests.
+- Tests run against reusable Composables with supplied UI state and callbacks, without requiring real ViewModels, Room, Retrofit, Firebase, or Gemini requests.
+- UI coverage includes:
+   - `DurationPicker` selection behavior
+   - Start screen display, navigation, and save-preset flow
+   - Saved Timers display, launch, rename, and delete flows
+   - Running timer ready, pause, completion, and reset states
+   - AI Coach input and send-intent behavior
+   - Google Sign-In button display
 
 ## Continuous Integration
 
@@ -86,6 +100,8 @@ The workflow:
 - Android Foreground Service
 - Android Notifications
 - SoundPool
+- Jetpack Compose UI Testing
+- AndroidX Test
 
 ## How It Works
 
@@ -123,42 +139,54 @@ The workflow:
 ## Project Structure
 
 ```text
-app/src/main/java/com/example/roundtimer/
-├── data/
-│   ├── audio/                   # Timer phase sound playback
-│   ├── controller/              # Android timer-session implementation
-│   ├── local/
-│   │   ├── datastore/           # Quote cache
-│   │   └── room/                # Saved-timer database, DAO, and entities
-│   ├── notification/            # Foreground notification updates
-│   ├── remote/                  # ZenQuotes API and DTOs
-│   ├── repository/              # Firebase, AI Coach, quote, and timer repositories
-│   └── service/                 # Foreground timer service
-├── di/                          # Hilt modules, including Firebase dependencies
-├── domain/
-│   ├── controller/              # Timer-session abstraction
-│   ├── model/                   # Timer, quote, auth, and AI Coach models
-│   ├── repository/              # Repository contracts
-│   └── usecase/                 # Feature use cases
-├── ui/
-│   ├── components/              # Reusable Compose components
-│   ├── navigation/              # Navigation 3 graph and navigation keys
-│   ├── screens/
-│   │   ├── aiCoachScreen/       # AI Coach screen, MVI state, intents, and ViewModel
-│   │   ├── running/             # Active timer screen and ViewModel
-│   │   ├── savedTimers/         # Saved presets screen and ViewModel
-│   │   └── start/               # Timer setup and Quote of the Day screen
-│   └── theme/                   # Compose theme
-└── utils/                       # Shared utilities
+app/src/
+├── main/java/com/example/roundtimer/
+│   ├── data/
+│   │   ├── audio/                   # Timer phase sound playback
+│   │   ├── controller/              # Android timer-session implementation
+│   │   ├── local/
+│   │   │   ├── datastore/           # Quote cache
+│   │   │   └── room/                # Saved-timer database, DAO, and entities
+│   │   ├── notification/            # Foreground notification updates
+│   │   ├── remote/                  # ZenQuotes API and DTOs
+│   │   ├── repository/              # Firebase, AI Coach, quote, and timer repositories
+│   │   └── service/                 # Foreground timer service
+│   ├── di/                          # Hilt modules, including Firebase dependencies
+│   ├── domain/
+│   │   ├── controller/              # Timer-session abstraction
+│   │   ├── model/                   # Timer, quote, auth, and AI Coach models
+│   │   ├── repository/              # Repository contracts
+│   │   └── usecase/                 # Feature use cases
+│   ├── ui/
+│   │   ├── components/              # Reusable Compose components
+│   │   ├── navigation/              # Navigation 3 graph and navigation keys
+│   │   ├── screens/
+│   │   │   ├── aiCoachScreen/       # AI Coach MVI state, intents, and ViewModel
+│   │   │   ├── running/             # Active-timer screen and ViewModel
+│   │   │   ├── savedTimers/         # Saved-presets screen and ViewModel
+│   │   │   └── start/               # Timer setup and Quote of the Day screen
+│   │   └── theme/                   # Compose theme
+│   └── utils/                       # Shared utilities
+├── test/java/com/example/roundtimer/
+│   └── ...                          # Unit tests: use cases, repositories, and ViewModels
+└── androidTest/java/com/example/roundtimer/
+    ├── roundTimer/
+    │   ├── AiCoachScreenTest.kt
+    │   ├── DurationPickerTest.kt
+    │   ├── GoogleSignInButtonTest.kt
+    │   ├── RunningScreenTest.kt
+    │   ├── SavedTimersScreenTest.kt
+    │   └── StartScreenTest.kt
+    └── ExampleInstrumentedTest.kt   # Default Android instrumented test
 
 functions/
-├── src/index.ts                 # Firebase Callable AI Coach backend
-├── package.json                 # Node.js and Firebase Functions dependencies
-├── tsconfig.json                # TypeScript configuration
-└── .eslintrc.js                 # Backend lint configuration
+├── src/index.ts                     # Firebase Callable AI Coach backend
+├── package.json                     # Node.js and Firebase Functions dependencies
+├── tsconfig.json                    # TypeScript configuration
+└── .eslintrc.js                     # Backend lint configuration
 
 .github/workflows/
-└── android-ci.yml               # Android CI workflow and Firebase config restore
+└── android-ci.yml                   # Android CI workflow and Firebase config restore
 ```
 
 ## Future Improvements
@@ -166,8 +194,7 @@ functions/
 - Improve AI Coach chat bubbles, auto-scroll behavior, and plain-text response formatting.
 - Return structured timer recommendations from AI Coach.
 - Add Firebase Cloud Messaging notifications.
-- Add Compose UI tests.
-- Use WorkManager for scheduled quote refresh or retry behavior.
+- Add optional daily focus reminders with WorkManager.
 - Prepare a Play Store release flavor that disables AI Coach until a public-safe access strategy is available.
 
 ## Author
