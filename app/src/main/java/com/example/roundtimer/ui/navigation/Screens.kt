@@ -29,3 +29,8 @@ data object SavedTimersScreenNavKey : Screens {
 data object AICoachScreenNavKey : Screens {
     override val screenTitle: String = "AI Coach Screen"
 }
+
+@Serializable
+data object SettingsScreenNavKey : Screens {
+    override val screenTitle: String = "Settings Screen"
+}

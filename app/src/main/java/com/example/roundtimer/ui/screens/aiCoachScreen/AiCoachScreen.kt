@@ -14,6 +14,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.Send
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
@@ -132,7 +134,7 @@ fun AiCoachScreen(
                     }
                 ) {
                     Icon(
-                        painter = painterResource(R.drawable.ic_enter),
+                        imageVector = Icons.AutoMirrored.Outlined.Send,
                         contentDescription = "Send message"
                     )
                 }

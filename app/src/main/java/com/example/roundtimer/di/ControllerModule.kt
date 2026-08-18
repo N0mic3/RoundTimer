@@ -1,6 +1,8 @@
 package com.example.roundtimer.di
 
 import com.example.roundtimer.data.controller.TimerSessionControllerImpl
+import com.example.roundtimer.data.workmanager.WorkManagerFocusReminderScheduler
+import com.example.roundtimer.domain.controller.FocusReminderScheduler
 import com.example.roundtimer.domain.controller.TimerSessionController
 import dagger.Binds
 import dagger.Module
@@ -17,4 +19,11 @@ abstract class ControllerModule {
     abstract fun provideTimeSessionController(
         implementation: TimerSessionControllerImpl
     ) : TimerSessionController
+
+
+    @Binds
+    @Singleton
+    abstract fun provideFocusReminderScheduler(
+        implementation: WorkManagerFocusReminderScheduler
+    ) : FocusReminderScheduler
 }
