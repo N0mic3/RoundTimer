@@ -1,9 +1,10 @@
 package com.example.roundtimer.domain.repository
 
+import com.example.roundtimer.domain.model.AppSettings
 import kotlinx.coroutines.flow.Flow
 
-interface FocusReminderSettingsRepository {
-    fun isDailyReminderEnabled(): Flow<Boolean>
+interface AppSettingsRepository {
+    fun observeAppSettings(): Flow<AppSettings>
 
     suspend fun setDailyReminderEnabled(
         isEnabled: Boolean,

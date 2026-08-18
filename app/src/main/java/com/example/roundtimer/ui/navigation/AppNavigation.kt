@@ -4,6 +4,12 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.outlined.ArrowBack
+import androidx.compose.material.icons.automirrored.outlined.List
+import androidx.compose.material.icons.outlined.List
+import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.icons.outlined.SmartToy
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -29,6 +35,8 @@ import com.example.roundtimer.ui.screens.running.RunningScreen
 import com.example.roundtimer.ui.screens.running.RunningViewModel
 import com.example.roundtimer.ui.screens.savedTimers.SavedTimerScreen
 import com.example.roundtimer.ui.screens.savedTimers.SavedTimersViewModel
+import com.example.roundtimer.ui.screens.settings.SettingsScreen
+import com.example.roundtimer.ui.screens.settings.SettingsViewModel
 import com.example.roundtimer.ui.screens.start.StartScreen
 import com.example.roundtimer.ui.screens.start.StartViewModel
 
@@ -77,8 +85,19 @@ fun AppNavigation(
                             onClick = ::handleBackNavigation
                         ) {
                             Icon(
-                                painter = painterResource(R.drawable.ic_left_arrow),
+                                imageVector = Icons.AutoMirrored.Outlined.ArrowBack,
                                 contentDescription = "back button"
+                            )
+                        }
+                    } else {
+                        IconButton(
+                            onClick = {
+                                backStack.add(SettingsScreenNavKey)
+                            }
+                        ) {
+                            Icon(
+                                imageVector = Icons.Outlined.Settings,
+                                contentDescription = "Setting button"
                             )
                         }
                     }
@@ -86,14 +105,14 @@ fun AppNavigation(
                 actions = {
                     (backStack.lastOrNull() as? StartScreenNavKey)?.let {
                         Icon(
-                            painter = painterResource(R.drawable.ic_ai_robot),
+                            imageVector = Icons.Outlined.SmartToy,
                             contentDescription = "AI Coach button",
                             modifier = Modifier.clickable {
                                 backStack.add(AICoachScreenNavKey)
                             }
                         )
                         Icon(
-                            painter = painterResource(R.drawable.ic_list),
+                            imageVector = Icons.AutoMirrored.Outlined.List,
                             contentDescription = "Saved Timers button",
                             modifier = Modifier.clickable {
                                 backStack.add(SavedTimersScreenNavKey)
@@ -156,6 +175,15 @@ fun AppNavigation(
                         AiCoachScreen(
                             aiCoachUiState = aiCoachUiState,
                             onIntent = aiCoachViewModel::onIntent
+                        )
+                    }
+
+                    entry<SettingsScreenNavKey> {
+                        val settingsViewModel: SettingsViewModel = hiltViewModel()
+                        val settingsUiState by settingsViewModel.settingsUiState.collectAsStateWithLifecycle()
+                        SettingsScreen(
+                            settingsUiState = settingsUiState,
+                            onToggleClicks = settingsViewModel::toggleAction
                         )
                     }
                 }

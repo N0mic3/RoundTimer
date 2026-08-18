@@ -21,7 +21,7 @@ class WorkManagerFocusReminderScheduler @Inject constructor(
         val reminderRequest = PeriodicWorkRequestBuilder<DailyFocusReminderWorker>(
             repeatInterval = 24,
             repeatIntervalTimeUnit = TimeUnit.HOURS,
-        ).build()
+        ).setInitialDelay(24, TimeUnit.HOURS).build()
 
         WorkManager.getInstance(context).enqueueUniquePeriodicWork(
             uniqueWorkName = UNIQUE_WORK_NAME,
