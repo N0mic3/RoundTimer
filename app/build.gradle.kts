@@ -27,11 +27,23 @@ android {
     }
 
     buildTypes {
+        debug {
+            buildConfigField(
+                "Boolean",
+                "AI_COACH_ENABLED",
+                "true",
+            )
+        }
         release {
             isMinifyEnabled = false
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
+            )
+            buildConfigField(
+                "Boolean",
+                "AI_COACH_ENABLED",
+                "false",
             )
         }
     }
@@ -42,6 +54,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
 }
 

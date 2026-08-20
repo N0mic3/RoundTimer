@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.ArrowBack
 import androidx.compose.material.icons.automirrored.outlined.List
-import androidx.compose.material.icons.outlined.List
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.icons.outlined.SmartToy
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -19,7 +18,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
@@ -28,7 +26,6 @@ import androidx.navigation3.runtime.rememberNavBackStack
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
 import com.example.roundtimer.MainActivityViewModel
-import com.example.roundtimer.R
 import com.example.roundtimer.ui.screens.aiCoachScreen.AiCoachScreen
 import com.example.roundtimer.ui.screens.aiCoachScreen.AiCoachViewModel
 import com.example.roundtimer.ui.screens.running.RunningScreen
@@ -39,6 +36,7 @@ import com.example.roundtimer.ui.screens.settings.SettingsScreen
 import com.example.roundtimer.ui.screens.settings.SettingsViewModel
 import com.example.roundtimer.ui.screens.start.StartScreen
 import com.example.roundtimer.ui.screens.start.StartViewModel
+import com.example.roundtimer.BuildConfig
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -104,13 +102,15 @@ fun AppNavigation(
                 },
                 actions = {
                     (backStack.lastOrNull() as? StartScreenNavKey)?.let {
-                        Icon(
-                            imageVector = Icons.Outlined.SmartToy,
-                            contentDescription = "AI Coach button",
-                            modifier = Modifier.clickable {
-                                backStack.add(AICoachScreenNavKey)
-                            }
-                        )
+                        if (BuildConfig.AI_COACH_ENABLED) {
+                            Icon(
+                                imageVector = Icons.Outlined.SmartToy,
+                                contentDescription = "AI Coach button",
+                                modifier = Modifier.clickable {
+                                    backStack.add(AICoachScreenNavKey)
+                                }
+                            )
+                        }
                         Icon(
                             imageVector = Icons.AutoMirrored.Outlined.List,
                             contentDescription = "Saved Timers button",
