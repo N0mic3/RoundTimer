@@ -17,7 +17,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.example.roundtimer"
+        applicationId = "com.yuhaoliu.roundtimer"
         minSdk = 24
         targetSdk = 36
         versionCode = 1
