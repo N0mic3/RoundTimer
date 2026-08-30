@@ -1,6 +1,5 @@
 package com.example.roundtimer.ui.screens.aiCoachScreen
 
-import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
@@ -16,49 +15,81 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Send
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.example.roundtimer.R
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.example.roundtimer.domain.model.CoachMode
+import com.example.roundtimer.domain.model.OnDeviceCoachStatus
 import com.example.roundtimer.ui.components.GoogleSignInButton
+import kotlinx.coroutines.flow.StateFlow
 
 @OptIn(ExperimentalLayoutApi::class)
 @Composable
 fun AiCoachScreen(
     aiCoachUiState : AiCoachUiState,
+    selectedCoachMode: CoachMode,
+    streamingReplyFlow: StateFlow<String?>,
     onIntent: (AiCoachIntent) -> Unit,
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
     val isKeyboardVisible = WindowInsets.isImeVisible
+    LaunchedEffect(selectedCoachMode) {
+        onIntent(
+            AiCoachIntent.CoachModeChanged(selectedCoachMode)
+        )
+    }
     Column(
         modifier = Modifier.fillMaxSize()
     ) {
-        if (!aiCoachUiState.isSignedIn) {
-            GoogleSignInButton(
-                isSigningIn = aiCoachUiState.isSigningIn,
-                onCredentialReceived = { idToken ->
-                    onIntent(
-                        AiCoachIntent.GoogleCredentialReceived(idToken),
+        when(selectedCoachMode) {
+            CoachMode.CLOUD -> {
+                if (!aiCoachUiState.isSignedIn) {
+                    GoogleSignInButton(
+                        isSigningIn = aiCoachUiState.isSigningIn,
+                        onCredentialReceived = { idToken ->
+                            onIntent(
+                                AiCoachIntent.GoogleCredentialReceived(idToken),
+                            )
+                        },
+                        onCredentialFailed = { message ->
+                            onIntent(
+                                AiCoachIntent.GoogleCredentialFailed(message),
+                            )
+                        },
                     )
-                },
-                onCredentialFailed = { message ->
-                    onIntent(
-                        AiCoachIntent.GoogleCredentialFailed(message),
-                    )
-                },
-            )
+                }
+            }
+            CoachMode.ON_DEVICE -> {
+                if (aiCoachUiState.onDeviceCoachStatus != OnDeviceCoachStatus.AVAILABLE) {
+                    Button(
+                        onClick = {
+                            onIntent(
+                                AiCoachIntent.DownloadOnDeviceModelClicked
+                            )
+                        },
+                        enabled = aiCoachUiState.onDeviceCoachStatus == OnDeviceCoachStatus.DOWNLOADABLE
+                    ) {
+                        Text(
+                            text = aiCoachUiState.onDeviceCoachStatus.displayMessage
+                        )
+                    }
+                }
+            }
         }
         LazyColumn(
             modifier = Modifier
@@ -77,19 +108,27 @@ fun AiCoachScreen(
                 }
         ) {
             items(aiCoachUiState.messages) { message ->
-                Log.d("MMM_Testing", "AiCoachScreen: ${message.text}")
                 Text(
                     modifier = Modifier.fillMaxWidth(),
                     text = message.text,
                     textAlign = if (message.isFromUser) TextAlign.End else TextAlign.Start
                 )
             }
-            if (aiCoachUiState.isLoading) {
-                item {
+            item {
+                val streamingReply by streamingReplyFlow.collectAsStateWithLifecycle()
+                streamingReply?.let { streamingReply ->
                     Text(
                         modifier = Modifier.fillMaxWidth(),
-                        text = "AI Coach is thinking..."
+                        text = streamingReply,
+                        textAlign = TextAlign.Start,
                     )
+                } ?: run {
+                    if (aiCoachUiState.isLoading) {
+                        Text(
+                            modifier = Modifier.fillMaxWidth(),
+                            text = "AI Coach is thinking..."
+                        )
+                    }
                 }
             }
             aiCoachUiState.errorMessage?.let { errorMessage ->
@@ -119,7 +158,9 @@ fun AiCoachScreen(
             keyboardActions = KeyboardActions(
                 onSend = {
                     onIntent(
-                        AiCoachIntent.SendClicked
+                        AiCoachIntent.SendClicked(
+                            coachMode = selectedCoachMode
+                        )
                     )
                 }
             ),
@@ -129,7 +170,9 @@ fun AiCoachScreen(
                     enabled = !aiCoachUiState.isLoading && aiCoachUiState.input.isNotBlank(),
                     onClick = {
                         onIntent(
-                            AiCoachIntent.SendClicked
+                            AiCoachIntent.SendClicked(
+                                coachMode = selectedCoachMode
+                            )
                         )
                     }
                 ) {

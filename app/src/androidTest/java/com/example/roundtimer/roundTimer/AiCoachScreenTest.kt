@@ -10,6 +10,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
+import com.example.roundtimer.domain.model.CoachMode
 import com.example.roundtimer.ui.screens.aiCoachScreen.AiCoachIntent
 import com.example.roundtimer.ui.screens.aiCoachScreen.AiCoachScreen
 import com.example.roundtimer.ui.screens.aiCoachScreen.AiCoachUiState
@@ -38,7 +39,8 @@ class AiCoachScreenTest {
         composeTestRule.setContent {
             RoundTimerTheme {
                 AiCoachScreen(
-                    aiCoachUiState = aiStateUiState
+                    aiCoachUiState = aiStateUiState,
+                    selectedCoachMode = CoachMode.CLOUD,
                 ) {
 
                 }
@@ -78,7 +80,8 @@ class AiCoachScreenTest {
             }
             RoundTimerTheme {
                 AiCoachScreen(
-                    aiCoachUiState = aiCoachUiState
+                    aiCoachUiState = aiCoachUiState,
+                    selectedCoachMode = CoachMode.CLOUD,
                 ) {
                     intent = it
                     if (it is AiCoachIntent.InputChanged) {
@@ -123,6 +126,7 @@ class AiCoachScreenTest {
                     aiCoachUiState = AiCoachUiState(
                         isLoading = true,
                     ),
+                    selectedCoachMode = CoachMode.CLOUD,
                     onIntent = {},
                 )
             }
@@ -141,6 +145,7 @@ class AiCoachScreenTest {
                     aiCoachUiState = AiCoachUiState(
                         errorMessage = "AI Coach is temporarily unavailable.",
                     ),
+                    selectedCoachMode = CoachMode.CLOUD,
                     onIntent = {},
                 )
             }

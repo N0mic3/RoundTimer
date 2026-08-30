@@ -1,5 +1,7 @@
 package com.example.roundtimer.ui.screens.aiCoachScreen
 
+import com.example.roundtimer.domain.model.OnDeviceCoachStatus
+
 data class AiCoachUiState(
     val input: String = "",
     val messages: List<CoachMessage> = listOf(
@@ -12,4 +14,5 @@ data class AiCoachUiState(
     val errorMessage: String? = null,
     val isSignedIn: Boolean = false,
     val isSigningIn: Boolean = false,
+    val onDeviceCoachStatus: OnDeviceCoachStatus = OnDeviceCoachStatus.UNAVAILABLE
 )

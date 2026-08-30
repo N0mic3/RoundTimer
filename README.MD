@@ -23,8 +23,11 @@ The app applies MVVM and Clean Architecture principles with Hilt dependency inje
 - Schedule an opt-in daily focus reminder with WorkManager and a Hilt-injected `CoroutineWorker`.
 - Persist the daily-reminder preference with Preferences DataStore and manage it from a Compose settings screen.
 - Sign in with Google through Firebase Authentication.
-- Use AI Coach for concise focus and timer suggestions.
-- Secure AI Coach requests with Firebase Callable Cloud Functions and server-side Firebase UID authorization.
+- Use AI Coach for concise focus and timer suggestions in **Cloud** or **On-device** mode.
+- Generate on-device AI Coach replies with the ML Kit GenAI Prompt API on compatible devices.
+- Check whether the on-device model is available, downloadable, downloading, or unsupported, and let eligible users download it in the app.
+- Stream on-device reply text into the chat while it is generated, then save the completed reply to the conversation.
+- Secure Cloud AI Coach requests with Firebase Callable Cloud Functions and server-side Firebase UID authorization.
 - Protect the Gemini API key and authorized UID with Google Cloud Secret Manager.
 - Generate AI Coach replies through the Gemini Developer API without exposing credentials in the Android APK or source control.
 - Disable AI Coach navigation in release builds through a local `BuildConfig` feature flag.
@@ -33,16 +36,23 @@ The app applies MVVM and Clean Architecture principles with Hilt dependency inje
 
 ```text
 Android AI Coach UI
-→ Google Sign-In
-→ Firebase Authentication
-→ Firebase Callable Cloud Function
-→ Firebase UID authorization
-→ Google Cloud Secret Manager
-→ Gemini Developer API
-→ AI response displayed in the app
+        ↓
+CoachEngine (domain contract)
+        ↓
+CoachEngineCoordinator
+   ┌────────────┴─────────────┐
+Cloud mode                On-device mode
+   ↓                          ↓
+Firebase Authentication    ML Kit GenAI Prompt API
+   ↓                          ↓
+Callable Cloud Function    Device-provided model / AICore
+   ↓                          ↓
+Gemini Developer API       Streamed AI response
 ```
 
-The Android app sends only the user message. The Firebase Function validates the Firebase user, verifies the authorized UID, retrieves the Gemini API key from Secret Manager, and returns only the generated reply.
+Cloud mode sends only the user message. The Firebase Function validates the Firebase user, verifies the authorized UID, retrieves the Gemini API key from Secret Manager, and returns only the generated reply.
+
+On-device mode does not call the Firebase backend. It checks the ML Kit model status before generation, supports an in-app download when the model is downloadable, and emits generating, partial-response, completed, and error states. Devices without the required on-device capability show a clear unavailable state.
 
 ## Testing Tools
 
@@ -95,6 +105,8 @@ The workflow:
 - Google Sign-In / Credential Manager
 - Google Cloud Secret Manager
 - Gemini Developer API
+- ML Kit GenAI Prompt API
+- On-device Gemini Nano / AICore capability
 - TypeScript
 - Node.js
 - JUnit 4
@@ -118,8 +130,9 @@ The workflow:
 5. Pause, resume, or reset whenever needed.
 6. After the final work interval, the timer shows **Done**.
 7. Optionally save the selected configuration as a named timer preset.
-8. Use AI Coach to receive a focus suggestion based on your available time and goal.
-9. Enable the optional daily focus reminder from Settings to receive a notification approximately 24 hours later.
+8. Choose **Cloud** or **On-device** AI Coach mode, then receive a focus suggestion based on your available time and goal.
+9. In on-device mode, download the model from the app first if it is available for download on the current device.
+10. Enable the optional daily focus reminder from Settings to receive a notification approximately 24 hours later.
 
 ## Getting Started
 
@@ -141,7 +154,9 @@ The workflow:
 
 5. Run the app on an Android emulator or physical Android device.
 
-> `google-services.json`, `.firebaserc`, and Cloud Function secrets are intentionally excluded from source control. Forks must connect to their own Firebase project before deploying or using AI Coach.
+> Cloud AI Coach requires your own Firebase and Gemini configuration. On-device AI Coach requires a compatible physical Android device with the required system AI capability; it may be unavailable on emulators or unsupported devices.
+
+> `google-services.json` and Cloud Function secrets are intentionally excluded from source control. Forks must connect to their own Firebase project before deploying or using Cloud AI Coach.
 
 ## Project Structure
 
@@ -150,18 +165,20 @@ app/src/
 ├── main/java/com/example/roundtimer/
 │   ├── data/
 │   │   ├── audio/                   # Timer phase sound playback
+│   │   ├── cloud/                   # Firebase-backed Cloud AI Coach engine
 │   │   ├── controller/              # Android timer-session implementation
 │   │   ├── local/
 │   │   │   ├── datastore/           # Quote cache and app settings
 │   │   │   └── room/                # Saved-timer database, DAO, and entities
 │   │   ├── notification/            # Foreground timer and daily-reminder notifications
+│   │   ├── ondevice/                # ML Kit on-device Coach engine and model availability
 │   │   ├── remote/                  # ZenQuotes API and DTOs
-│   │   ├── repository/              # Firebase, AI Coach, quote, and timer repositories
+│   │   ├── repository/              # Firebase, quote, and timer repositories
 │   │   ├── service/                 # Foreground timer service
 │   │   └── workmanager/             # Daily focus reminder worker and scheduler
 │   ├── di/                          # Hilt modules, including Firebase dependencies
 │   ├── domain/
-│   │   ├── controller/              # Timer-session and reminder-scheduler abstractions
+│   │   ├── controller/              # Timer, reminder, and Coach-engine abstractions
 │   │   ├── model/                   # Timer, quote, auth, AI Coach, and app-settings models
 │   │   ├── repository/              # Repository contracts
 │   │   └── usecase/                 # Feature use cases
@@ -203,6 +220,7 @@ functions/
 
 - Improve AI Coach chat bubbles, auto-scroll behavior, and plain-text response formatting.
 - Return structured timer recommendations from AI Coach.
+- Add speech-to-text input and text-to-speech playback controls for AI Coach.
 - Add Firebase Cloud Messaging notifications.
 - Add user-selected reminder times with AlarmManager for an exact-time reminder experience.
 
