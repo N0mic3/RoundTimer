@@ -18,7 +18,7 @@ android {
 
     defaultConfig {
         applicationId = "com.yuhaoliu.roundtimer"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
@@ -96,6 +96,7 @@ dependencies {
     implementation(libs.androidx.work.runtime)
     implementation(libs.androidx.hilt.work)
     implementation(libs.androidx.compose.material.icons.extended)
+    implementation(libs.mlkit.genai.prompt)
     ksp(libs.androidx.hilt.compiler)
     ksp(libs.androidx.room.compiler)
     ksp(libs.hilt.compiler)

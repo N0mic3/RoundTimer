@@ -17,6 +17,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -37,6 +40,8 @@ import com.example.roundtimer.ui.screens.settings.SettingsViewModel
 import com.example.roundtimer.ui.screens.start.StartScreen
 import com.example.roundtimer.ui.screens.start.StartViewModel
 import com.example.roundtimer.BuildConfig
+import com.example.roundtimer.domain.model.CoachMode
+import com.example.roundtimer.ui.components.CoachModeDropDownMenu
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -44,6 +49,9 @@ fun AppNavigation(
     mainActivityViewModel: MainActivityViewModel
 ) {
     val backStack = rememberNavBackStack(StartScreenNavKey)
+    var currentCoachMode by rememberSaveable {
+        mutableStateOf(CoachMode.CLOUD)
+    }
     fun handleBackNavigation() {
         if (backStack.size > 1) {
             when (backStack.lastOrNull()) {
@@ -101,23 +109,34 @@ fun AppNavigation(
                     }
                 },
                 actions = {
-                    (backStack.lastOrNull() as? StartScreenNavKey)?.let {
-                        if (BuildConfig.AI_COACH_ENABLED) {
+                    when (backStack.lastOrNull()) {
+                        StartScreenNavKey -> {
+                            if (BuildConfig.AI_COACH_ENABLED) {
+                                Icon(
+                                    imageVector = Icons.Outlined.SmartToy,
+                                    contentDescription = "AI Coach button",
+                                    modifier = Modifier.clickable {
+                                        backStack.add(AICoachScreenNavKey)
+                                    }
+                                )
+                            }
                             Icon(
-                                imageVector = Icons.Outlined.SmartToy,
-                                contentDescription = "AI Coach button",
+                                imageVector = Icons.AutoMirrored.Outlined.List,
+                                contentDescription = "Saved Timers button",
                                 modifier = Modifier.clickable {
-                                    backStack.add(AICoachScreenNavKey)
+                                    backStack.add(SavedTimersScreenNavKey)
                                 }
                             )
                         }
-                        Icon(
-                            imageVector = Icons.AutoMirrored.Outlined.List,
-                            contentDescription = "Saved Timers button",
-                            modifier = Modifier.clickable {
-                                backStack.add(SavedTimersScreenNavKey)
-                            }
-                        )
+
+                        AICoachScreenNavKey -> {
+                            CoachModeDropDownMenu(
+                                selectedMode = currentCoachMode,
+                                onclick = {
+                                    currentCoachMode = it
+                                }
+                            )
+                        }
                     }
                 }
             )
@@ -174,7 +193,9 @@ fun AppNavigation(
                         val aiCoachUiState by aiCoachViewModel.aiCoachUiState.collectAsStateWithLifecycle()
                         AiCoachScreen(
                             aiCoachUiState = aiCoachUiState,
-                            onIntent = aiCoachViewModel::onIntent
+                            selectedCoachMode = currentCoachMode,
+                            streamingReplyFlow = aiCoachViewModel.streamingReply,
+                            onIntent = aiCoachViewModel::onIntent,
                         )
                     }
 

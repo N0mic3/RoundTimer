@@ -1,15 +1,14 @@
 package com.example.roundtimer.domain.usecase
 
-import com.example.roundtimer.domain.model.CoachReply
-import com.example.roundtimer.domain.repository.AiCoachRepository
+import com.example.roundtimer.domain.controller.CoachEngine
+import com.example.roundtimer.domain.model.CoachRequest
 import javax.inject.Inject
 
 class GetAiCoachReplyUseCase @Inject constructor(
-    private val aiCoachRepository: AiCoachRepository,
+    private val coachEngine: CoachEngine
 ) {
-    suspend fun getReply(
-        userMessage: String,
-    ): CoachReply {
-        return aiCoachRepository.getReply(userMessage)
-    }
+    fun getReply(
+        coachRequest: CoachRequest
+    ) = coachEngine.getReply(coachRequest)
+
 }
