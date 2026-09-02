@@ -11,7 +11,6 @@ import android.os.Build
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import androidx.core.content.ContextCompat
 import androidx.core.content.getSystemService
 import com.example.roundtimer.MainActivity
 import com.example.roundtimer.R
@@ -32,7 +31,6 @@ class TimerNotificationManager @Inject constructor(
     }
 
     fun createChannel() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
         val channel = NotificationChannel(
             CHANNEL_ID,
             "round Timer",

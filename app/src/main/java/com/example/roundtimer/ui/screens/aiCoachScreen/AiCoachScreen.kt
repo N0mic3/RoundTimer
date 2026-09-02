@@ -20,6 +20,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -108,11 +109,36 @@ fun AiCoachScreen(
                 }
         ) {
             items(aiCoachUiState.messages) { message ->
-                Text(
-                    modifier = Modifier.fillMaxWidth(),
-                    text = message.text,
-                    textAlign = if (message.isFromUser) TextAlign.End else TextAlign.Start
-                )
+                Column(
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = message.text,
+                        textAlign = if (message.isFromUser) TextAlign.End else TextAlign.Start
+                    )
+                    if (!message.isFromUser) {
+                        Button(
+                            onClick = {
+                                if (aiCoachUiState.speakingReply == message.text) {
+                                    onIntent(
+                                        AiCoachIntent.StopSpeechClicked
+                                    )
+                                } else {
+                                    onIntent(
+                                        AiCoachIntent.PlayReplyClicked(
+                                            text = message.text,
+                                        ),
+                                    )
+                                }
+                            },
+                        ) {
+                            Text(
+                                if (aiCoachUiState.speakingReply == message.text) "Stop" else "Play aloud"
+                            )
+                        }
+                    }
+                }
             }
             item {
                 val streamingReply by streamingReplyFlow.collectAsStateWithLifecycle()

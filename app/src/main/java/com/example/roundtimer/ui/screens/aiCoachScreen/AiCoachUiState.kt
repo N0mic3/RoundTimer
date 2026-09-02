@@ -14,5 +14,6 @@ data class AiCoachUiState(
     val errorMessage: String? = null,
     val isSignedIn: Boolean = false,
     val isSigningIn: Boolean = false,
-    val onDeviceCoachStatus: OnDeviceCoachStatus = OnDeviceCoachStatus.UNAVAILABLE
+    val onDeviceCoachStatus: OnDeviceCoachStatus = OnDeviceCoachStatus.UNAVAILABLE,
+    val speakingReply: String? = null
 )
