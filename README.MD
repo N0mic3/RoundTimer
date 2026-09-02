@@ -27,6 +27,8 @@ The app applies MVVM and Clean Architecture principles with Hilt dependency inje
 - Generate on-device AI Coach replies with the ML Kit GenAI Prompt API on compatible devices.
 - Check whether the on-device model is available, downloadable, downloading, or unsupported, and let eligible users download it in the app.
 - Stream on-device reply text into the chat while it is generated, then save the completed reply to the conversation.
+- Read completed AI Coach replies aloud with Android's built-in Text-to-Speech engine.
+- Provide per-reply Play aloud, Stop, and replay controls; reset playback UI when speech completes or fails.
 - Secure Cloud AI Coach requests with Firebase Callable Cloud Functions and server-side Firebase UID authorization.
 - Protect the Gemini API key and authorized UID with Google Cloud Secret Manager.
 - Generate AI Coach replies through the Gemini Developer API without exposing credentials in the Android APK or source control.
@@ -53,6 +55,8 @@ Gemini Developer API       Streamed AI response
 Cloud mode sends only the user message. The Firebase Function validates the Firebase user, verifies the authorized UID, retrieves the Gemini API key from Secret Manager, and returns only the generated reply.
 
 On-device mode does not call the Firebase backend. It checks the ML Kit model status before generation, supports an in-app download when the model is downloadable, and emits generating, partial-response, completed, and error states. Devices without the required on-device capability show a clear unavailable state.
+
+For either AI mode, `CoachTextToSpeechController` keeps the ViewModel independent of Android's `TextToSpeech` API. The Android implementation reports start, completion, and error callbacks through `SharedFlow`, allowing the UI to reset the active reply's playback controls when speech ends.
 
 ## Testing Tools
 
@@ -95,7 +99,7 @@ The workflow:
 - MVVM
 - Clean Architecture
 - Hilt
-- Kotlin Coroutines and StateFlow
+- Kotlin Coroutines, StateFlow, and SharedFlow
 - Kotlin Serialization
 - Retrofit
 - Room
@@ -115,6 +119,7 @@ The workflow:
 - GitHub Actions
 - Android Foreground Service
 - Android Notifications
+- Android TextToSpeech and UtteranceProgressListener
 - SoundPool
 - WorkManager
 - Hilt Work
@@ -132,7 +137,8 @@ The workflow:
 7. Optionally save the selected configuration as a named timer preset.
 8. Choose **Cloud** or **On-device** AI Coach mode, then receive a focus suggestion based on your available time and goal.
 9. In on-device mode, download the model from the app first if it is available for download on the current device.
-10. Enable the optional daily focus reminder from Settings to receive a notification approximately 24 hours later.
+10. Play, stop, or replay a completed AI Coach reply using Android text-to-speech.
+11. Enable the optional daily focus reminder from Settings to receive a notification approximately 24 hours later.
 
 ## Getting Started
 
@@ -166,7 +172,7 @@ app/src/
 │   ├── data/
 │   │   ├── audio/                   # Timer phase sound playback
 │   │   ├── cloud/                   # Firebase-backed Cloud AI Coach engine
-│   │   ├── controller/              # Android timer-session implementation
+│   │   ├── controller/              # Android timer-session and Text-to-Speech implementations
 │   │   ├── local/
 │   │   │   ├── datastore/           # Quote cache and app settings
 │   │   │   └── room/                # Saved-timer database, DAO, and entities
@@ -178,8 +184,8 @@ app/src/
 │   │   └── workmanager/             # Daily focus reminder worker and scheduler
 │   ├── di/                          # Hilt modules, including Firebase dependencies
 │   ├── domain/
-│   │   ├── controller/              # Timer, reminder, and Coach-engine abstractions
-│   │   ├── model/                   # Timer, quote, auth, AI Coach, and app-settings models
+│   │   ├── controller/              # Timer, reminder, Coach-engine, and TTS abstractions
+│   │   ├── model/                   # Timer, quote, auth, AI Coach, TTS, and app-settings models
 │   │   ├── repository/              # Repository contracts
 │   │   └── usecase/                 # Feature use cases
 │   ├── ui/
@@ -220,7 +226,7 @@ functions/
 
 - Improve AI Coach chat bubbles, auto-scroll behavior, and plain-text response formatting.
 - Return structured timer recommendations from AI Coach.
-- Add speech-to-text input and text-to-speech playback controls for AI Coach.
+- Add speech-to-text input and microphone controls for AI Coach.
 - Add Firebase Cloud Messaging notifications.
 - Add user-selected reminder times with AlarmManager for an exact-time reminder experience.
 
