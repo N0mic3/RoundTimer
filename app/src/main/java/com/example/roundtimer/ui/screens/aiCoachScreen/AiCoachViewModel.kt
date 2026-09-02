@@ -1,13 +1,14 @@
 package com.example.roundtimer.ui.screens.aiCoachScreen
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.roundtimer.domain.controller.CoachTextToSpeechController
 import com.example.roundtimer.domain.controller.OnDeviceCoachAvailability
 import com.example.roundtimer.domain.model.CoachMode
 import com.example.roundtimer.domain.model.CoachRequest
 import com.example.roundtimer.domain.model.CoachResponseState
 import com.example.roundtimer.domain.model.OnDeviceCoachStatus
+import com.example.roundtimer.domain.model.TextToSpeechPlaybackEvent
 import com.example.roundtimer.domain.usecase.AuthUseCase
 import com.example.roundtimer.domain.usecase.GetAiCoachReplyUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -22,7 +23,8 @@ import kotlin.coroutines.cancellation.CancellationException
 class AiCoachViewModel @Inject constructor(
     private val getAiCoachReplyUseCase: GetAiCoachReplyUseCase,
     private val authUseCase: AuthUseCase,
-    private val onDeviceCoachAvailability: OnDeviceCoachAvailability
+    private val onDeviceCoachAvailability: OnDeviceCoachAvailability,
+    private val coachTextToSpeechController: CoachTextToSpeechController,
 ) : ViewModel() {
 
     private val _aiCoachUiState = MutableStateFlow(AiCoachUiState())
@@ -30,6 +32,24 @@ class AiCoachViewModel @Inject constructor(
 
     private val _streamingReply = MutableStateFlow<String?>(null)
     val streamingReply = _streamingReply.asStateFlow()
+
+    init {
+        viewModelScope.launch {
+            coachTextToSpeechController.playbackEvents.collect {
+                when(it) {
+                    TextToSpeechPlaybackEvent.FINISHED,
+                    TextToSpeechPlaybackEvent.ERROR -> {
+                        _aiCoachUiState.update {
+                            it.copy(
+                                speakingReply = null
+                            )
+                        }
+                    }
+                    TextToSpeechPlaybackEvent.STARTED -> {}
+                }
+            }
+        }
+    }
 
     fun onIntent(intent: AiCoachIntent) {
         when (intent) {
@@ -179,7 +199,6 @@ class AiCoachViewModel @Inject constructor(
                     try {
                         onDeviceCoachAvailability.downloadModel()
                         val status = onDeviceCoachAvailability.getStatus()
-                        Log.d("Testing", "download intent: ${status}")
                         _aiCoachUiState.update {
                             it.copy(
                                 onDeviceCoachStatus = status,
@@ -196,6 +215,23 @@ class AiCoachViewModel @Inject constructor(
                             )
                         }
                     }
+                }
+            }
+            is AiCoachIntent.PlayReplyClicked -> {
+                coachTextToSpeechController.speak(intent.text)
+                _aiCoachUiState.update {
+                    it.copy(
+                          speakingReply = intent.text
+                    )
+                }
+            }
+
+            AiCoachIntent.StopSpeechClicked -> {
+                coachTextToSpeechController.stop()
+                _aiCoachUiState.update {
+                    it.copy(
+                        speakingReply = null
+                    )
                 }
             }
         }
@@ -229,5 +265,10 @@ class AiCoachViewModel @Inject constructor(
             }
 
         }
+    }
+
+    override fun onCleared() {
+        coachTextToSpeechController.release()
+        super.onCleared()
     }
 }

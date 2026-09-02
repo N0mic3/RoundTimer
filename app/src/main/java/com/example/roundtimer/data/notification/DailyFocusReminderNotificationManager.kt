@@ -29,7 +29,6 @@ class DailyFocusReminderNotificationManager @Inject constructor(
     }
 
     fun createChannel() {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O ) return
         val channel = NotificationChannel(
             CHANNEL_ID,
             CHANNEL_NAME,

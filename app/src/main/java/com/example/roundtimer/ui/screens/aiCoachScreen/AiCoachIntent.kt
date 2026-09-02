@@ -20,4 +20,10 @@ sealed interface AiCoachIntent {
     ) : AiCoachIntent
 
     data object DownloadOnDeviceModelClicked : AiCoachIntent
+
+    data class PlayReplyClicked(
+        val text: String,
+    ) : AiCoachIntent
+
+    data object StopSpeechClicked : AiCoachIntent
 }
