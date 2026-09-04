@@ -15,5 +15,7 @@ data class AiCoachUiState(
     val isSignedIn: Boolean = false,
     val isSigningIn: Boolean = false,
     val onDeviceCoachStatus: OnDeviceCoachStatus = OnDeviceCoachStatus.UNAVAILABLE,
-    val speakingReply: String? = null
+    val speakingReply: String? = null,
+    val micInput: String? = null,
+    val isRecognizing: Boolean = false
 )

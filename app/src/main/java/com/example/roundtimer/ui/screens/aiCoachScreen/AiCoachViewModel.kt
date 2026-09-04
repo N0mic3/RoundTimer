@@ -1,13 +1,16 @@
 package com.example.roundtimer.ui.screens.aiCoachScreen
 
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.roundtimer.domain.controller.CoachSpeechRecognizerController
 import com.example.roundtimer.domain.controller.CoachTextToSpeechController
 import com.example.roundtimer.domain.controller.OnDeviceCoachAvailability
 import com.example.roundtimer.domain.model.CoachMode
 import com.example.roundtimer.domain.model.CoachRequest
 import com.example.roundtimer.domain.model.CoachResponseState
 import com.example.roundtimer.domain.model.OnDeviceCoachStatus
+import com.example.roundtimer.domain.model.SpeechRecognitionEvent
 import com.example.roundtimer.domain.model.TextToSpeechPlaybackEvent
 import com.example.roundtimer.domain.usecase.AuthUseCase
 import com.example.roundtimer.domain.usecase.GetAiCoachReplyUseCase
@@ -25,6 +28,7 @@ class AiCoachViewModel @Inject constructor(
     private val authUseCase: AuthUseCase,
     private val onDeviceCoachAvailability: OnDeviceCoachAvailability,
     private val coachTextToSpeechController: CoachTextToSpeechController,
+    private val coachSpeechRecognizerController: CoachSpeechRecognizerController
 ) : ViewModel() {
 
     private val _aiCoachUiState = MutableStateFlow(AiCoachUiState())
@@ -46,6 +50,38 @@ class AiCoachViewModel @Inject constructor(
                         }
                     }
                     TextToSpeechPlaybackEvent.STARTED -> {}
+                }
+            }
+        }
+
+        viewModelScope.launch {
+            coachSpeechRecognizerController.recognitionEvents.collect { speechRecognitionEvent ->
+                when(speechRecognitionEvent) {
+                    is SpeechRecognitionEvent.Error -> {
+                        _aiCoachUiState.update {
+                            it.copy(
+                                errorMessage = speechRecognitionEvent.message,
+                                micInput = null,
+                                isRecognizing = false,
+                            )
+                        }
+                    }
+                    is SpeechRecognitionEvent.FinalResult -> {
+                        _aiCoachUiState.update {
+                            it.copy(
+                                input = "${it.input} ${speechRecognitionEvent.text}".trim(),
+                                micInput = null,
+                                isRecognizing = false
+                            )
+                        }
+                    }
+                    is SpeechRecognitionEvent.PartialResult -> {
+                        _aiCoachUiState.update {
+                            it.copy(
+                                micInput = speechRecognitionEvent.text
+                            )
+                        }
+                    }
                 }
             }
         }
@@ -221,7 +257,9 @@ class AiCoachViewModel @Inject constructor(
                 coachTextToSpeechController.speak(intent.text)
                 _aiCoachUiState.update {
                     it.copy(
-                          speakingReply = intent.text
+                        speakingReply = intent.text,
+                        micInput = null,
+                        errorMessage = null,
                     )
                 }
             }
@@ -231,6 +269,36 @@ class AiCoachViewModel @Inject constructor(
                 _aiCoachUiState.update {
                     it.copy(
                         speakingReply = null
+                    )
+                }
+            }
+
+            AiCoachIntent.StartSpeechRecognize -> {
+                if (_aiCoachUiState.value.isRecognizing) return
+                coachTextToSpeechController.stop()
+                _aiCoachUiState.update {
+                    it.copy(
+                        speakingReply = null,
+                        errorMessage = null,
+                        isRecognizing = true
+                    )
+                }
+                coachSpeechRecognizerController.startListening()
+            }
+            AiCoachIntent.StopSpeechRecognize -> {
+                coachSpeechRecognizerController.stopListening()
+                _aiCoachUiState.update {
+                    it.copy(
+                        isRecognizing = false,
+                        micInput = null,
+                    )
+                }
+            }
+
+            AiCoachIntent.SpeechRecognitionPermissionDenied -> {
+                _aiCoachUiState.update {
+                    it.copy(
+                        errorMessage = "Microphone permission is required for voice input.",
                     )
                 }
             }
@@ -269,6 +337,7 @@ class AiCoachViewModel @Inject constructor(
 
     override fun onCleared() {
         coachTextToSpeechController.release()
+        coachSpeechRecognizerController.release()
         super.onCleared()
     }
 }

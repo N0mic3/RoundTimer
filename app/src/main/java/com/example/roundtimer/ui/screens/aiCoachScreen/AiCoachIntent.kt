@@ -26,4 +26,10 @@ sealed interface AiCoachIntent {
     ) : AiCoachIntent
 
     data object StopSpeechClicked : AiCoachIntent
+
+    data object StartSpeechRecognize : AiCoachIntent
+
+    data object StopSpeechRecognize : AiCoachIntent
+
+    data object SpeechRecognitionPermissionDenied : AiCoachIntent
 }
