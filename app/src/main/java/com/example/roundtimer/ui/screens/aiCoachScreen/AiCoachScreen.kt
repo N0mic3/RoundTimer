@@ -1,5 +1,9 @@
 package com.example.roundtimer.ui.screens.aiCoachScreen
 
+import android.Manifest
+import android.content.pm.PackageManager
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
@@ -15,23 +19,26 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Send
+import androidx.compose.material.icons.outlined.Mic
+import androidx.compose.material.icons.outlined.Stop
 import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.roundtimer.domain.model.CoachMode
 import com.example.roundtimer.domain.model.OnDeviceCoachStatus
@@ -49,6 +56,16 @@ fun AiCoachScreen(
     val keyboardController = LocalSoftwareKeyboardController.current
     val focusManager = LocalFocusManager.current
     val isKeyboardVisible = WindowInsets.isImeVisible
+    val context = LocalContext.current
+    val microphonePermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission(), { granted ->
+            if (!granted) {
+                onIntent(
+                    AiCoachIntent.SpeechRecognitionPermissionDenied
+                )
+            }
+        }
+    )
     LaunchedEffect(selectedCoachMode) {
         onIntent(
             AiCoachIntent.CoachModeChanged(selectedCoachMode)
@@ -171,12 +188,15 @@ fun AiCoachScreen(
                 .fillMaxWidth()
                 .padding(12.dp)
                 .testTag("user_send_text_field"),
-            value = aiCoachUiState.input,
+            value = aiCoachUiState.input + if (aiCoachUiState.micInput.isNullOrBlank()) "" else {
+                " ${aiCoachUiState.micInput}"
+            },
             onValueChange = {
                 onIntent(
                     AiCoachIntent.InputChanged(it)
                 )
             },
+            readOnly = aiCoachUiState.isRecognizing,
             singleLine = true,
             keyboardOptions = KeyboardOptions(
                 imeAction = ImeAction.Send
@@ -205,6 +225,40 @@ fun AiCoachScreen(
                     Icon(
                         imageVector = Icons.AutoMirrored.Outlined.Send,
                         contentDescription = "Send message"
+                    )
+                }
+            },
+            leadingIcon = {
+                IconButton(
+                    onClick = {
+                        if (aiCoachUiState.isRecognizing) {
+                            onIntent(AiCoachIntent.StopSpeechRecognize)
+                        } else {
+                            val hasMicrophonePermission = ContextCompat.checkSelfPermission(
+                                context,
+                                Manifest.permission.RECORD_AUDIO
+                            ) == PackageManager.PERMISSION_GRANTED
+                            if (hasMicrophonePermission) {
+                                onIntent(AiCoachIntent.StartSpeechRecognize)
+                            } else {
+                                microphonePermissionLauncher.launch(
+                                    Manifest.permission.RECORD_AUDIO,
+                                )
+                            }
+                        }
+                    },
+                ) {
+                    Icon(
+                        imageVector = if (aiCoachUiState.isRecognizing) {
+                            Icons.Outlined.Stop
+                        } else {
+                            Icons.Outlined.Mic
+                        },
+                        contentDescription = if (aiCoachUiState.isRecognizing) {
+                            "Stop listening"
+                        } else {
+                            "Start voice input"
+                        },
                     )
                 }
             }
