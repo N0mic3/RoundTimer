@@ -176,10 +176,22 @@ fun AiCoachScreen(
             }
             aiCoachUiState.errorMessage?.let { errorMessage ->
                 item {
-                    Text(
-                        modifier = Modifier.fillMaxWidth(),
-                        text = errorMessage
-                    )
+                    Column {
+                        Text(
+                            modifier = Modifier.fillMaxWidth(),
+                            text = errorMessage,
+                        )
+                        if (aiCoachUiState.canRetryAiRequest) {
+                            Button(
+                                enabled = !aiCoachUiState.isLoading,
+                                onClick = {
+                                    onIntent(AiCoachIntent.RetryClicked)
+                                },
+                            ) {
+                                Text("Retry")
+                            }
+                        }
+                    }
                 }
             }
         }

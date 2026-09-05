@@ -36,12 +36,9 @@ class CloudCoachEngine @Inject constructor(
                 )
             } catch (exception: CancellationException) {
                 throw exception
-            } catch (exception: Exception) {
+            } catch (_: Exception) {
                 emit(
-                    CoachResponseState.Error(
-                        exception.message
-                            ?: "Unable to reach AI Coach. Please try again.",
-                    ),
+                    CoachResponseState.Error("Unable to reach AI Coach. Please try again.",),
                 )
             }
         }

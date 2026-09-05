@@ -15,6 +15,7 @@ import com.example.roundtimer.domain.model.TextToSpeechPlaybackEvent
 import com.example.roundtimer.domain.usecase.AuthUseCase
 import com.example.roundtimer.domain.usecase.GetAiCoachReplyUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -36,6 +37,10 @@ class AiCoachViewModel @Inject constructor(
 
     private val _streamingReply = MutableStateFlow<String?>(null)
     val streamingReply = _streamingReply.asStateFlow()
+
+    private var retryableCoachRequest: CoachRequest? = null
+
+    private var coachReplyJob: Job? = null
 
     init {
         viewModelScope.launch {
@@ -63,6 +68,7 @@ class AiCoachViewModel @Inject constructor(
                                 errorMessage = speechRecognitionEvent.message,
                                 micInput = null,
                                 isRecognizing = false,
+                                canRetryAiRequest = false,
                             )
                         }
                     }
@@ -81,6 +87,52 @@ class AiCoachViewModel @Inject constructor(
                                 micInput = speechRecognitionEvent.text
                             )
                         }
+                    }
+                }
+            }
+        }
+    }
+
+    private fun requestCoachReply(
+        coachRequest: CoachRequest,
+    ) {
+        coachReplyJob?.cancel()
+        coachReplyJob = viewModelScope.launch {
+            getAiCoachReplyUseCase.getReply(
+                coachRequest = coachRequest
+            ).collect { coachResponseState ->
+                when (coachResponseState) {
+                    CoachResponseState.Generating -> {
+
+                    }
+                    is CoachResponseState.Completed -> {
+                        retryableCoachRequest = null
+                        _streamingReply.value = null
+                        _aiCoachUiState.update {
+                            it.copy(
+                                input = "",
+                                messages = it.messages + CoachMessage(
+                                    text = coachResponseState.reply.message,
+                                    isFromUser = false,
+                                ),
+                                isLoading = false,
+                                canRetryAiRequest = false
+                            )
+                        }
+                    }
+                    is CoachResponseState.Error -> {
+                        retryableCoachRequest = coachRequest
+                        _streamingReply.value = null
+                        _aiCoachUiState.update {
+                            it.copy(
+                                isLoading = false,
+                                errorMessage = coachResponseState.message,
+                                canRetryAiRequest = true
+                            )
+                        }
+                    }
+                    is CoachResponseState.PartialResponse -> {
+                        _streamingReply.value = coachResponseState.text
                     }
                 }
             }
@@ -115,47 +167,15 @@ class AiCoachViewModel @Inject constructor(
                                 ),
                                 isLoading = true,
                                 errorMessage = null,
+                                canRetryAiRequest = false
                             )
                         }
-                        viewModelScope.launch {
-                            getAiCoachReplyUseCase.getReply(
-                                coachRequest = CoachRequest(
-                                    userMessage = messageText,
-                                    coachMode = intent.coachMode
-                                )
-                            ).collect { coachResponseState ->
-                                when (coachResponseState) {
-                                    CoachResponseState.Generating -> {
-
-                                    }
-                                    is CoachResponseState.Completed -> {
-                                        _streamingReply.value = null
-                                        _aiCoachUiState.update {
-                                            it.copy(
-                                                input = "",
-                                                messages = it.messages + CoachMessage(
-                                                    text = coachResponseState.reply.message,
-                                                    isFromUser = false,
-                                                ),
-                                                isLoading = false
-                                            )
-                                        }
-                                    }
-                                    is CoachResponseState.Error -> {
-                                        _streamingReply.value = null
-                                        _aiCoachUiState.update {
-                                            it.copy(
-                                                isLoading = false,
-                                                errorMessage = coachResponseState.message,
-                                            )
-                                        }
-                                    }
-                                    is CoachResponseState.PartialResponse -> {
-                                        _streamingReply.value = coachResponseState.text
-                                    }
-                                }
-                            }
-                        }
+                        requestCoachReply(
+                            CoachRequest(
+                                userMessage = messageText,
+                                coachMode = intent.coachMode,
+                            )
+                        )
                     }
                 } else {
                     val errorMessage = when (intent.coachMode) {
@@ -170,6 +190,7 @@ class AiCoachViewModel @Inject constructor(
                         it.copy(
                             isLoading = false,
                             errorMessage = errorMessage,
+                            canRetryAiRequest = false,
                         )
                     }
                 }
@@ -182,17 +203,25 @@ class AiCoachViewModel @Inject constructor(
                     it.copy(
                         isSigningIn = false,
                         errorMessage = intent.message,
+                        canRetryAiRequest = false
                     )
                 }
             }
 
             is AiCoachIntent.CoachModeChanged -> {
+                coachReplyJob?.cancel()
+                coachReplyJob = null
+                _streamingReply.value = null
+                retryableCoachRequest = null
                 when(intent.mode) {
                     CoachMode.CLOUD -> {
                         _aiCoachUiState.update {
                             it.copy(
+                                messages = AiCoachUiState().messages,
                                 isSignedIn = authUseCase.getCurrentUser() != null,
-                                errorMessage = null
+                                errorMessage = null,
+                                isLoading = false,
+                                canRetryAiRequest = false
                             )
                         }
                     }
@@ -202,8 +231,11 @@ class AiCoachViewModel @Inject constructor(
                                 val state = onDeviceCoachAvailability.getStatus()
                                 _aiCoachUiState.update {
                                     it.copy(
+                                        messages = AiCoachUiState().messages,
                                         onDeviceCoachStatus = state,
-                                        errorMessage = null
+                                        errorMessage = null,
+                                        isLoading = false,
+                                        canRetryAiRequest = false
                                     )
                                 }
                             } catch (exception: CancellationException) {
@@ -211,8 +243,11 @@ class AiCoachViewModel @Inject constructor(
                             } catch (_ : Exception) {
                                 _aiCoachUiState.update {
                                     it.copy(
+                                        messages = AiCoachUiState().messages,
                                         onDeviceCoachStatus = OnDeviceCoachStatus.UNAVAILABLE,
                                         errorMessage = "Unable to check on-device AI availability.",
+                                        canRetryAiRequest = false,
+                                        isLoading = false,
                                     )
                                 }
                             }
@@ -229,6 +264,7 @@ class AiCoachViewModel @Inject constructor(
                     it.copy(
                         onDeviceCoachStatus = OnDeviceCoachStatus.DOWNLOADING,
                         errorMessage = null,
+                        canRetryAiRequest = false,
                     )
                 }
                 viewModelScope.launch {
@@ -238,7 +274,8 @@ class AiCoachViewModel @Inject constructor(
                         _aiCoachUiState.update {
                             it.copy(
                                 onDeviceCoachStatus = status,
-                                errorMessage = null
+                                errorMessage = null,
+                                canRetryAiRequest = false,
                             )
                         }
                     } catch (exception: CancellationException) {
@@ -248,6 +285,7 @@ class AiCoachViewModel @Inject constructor(
                             it.copy(
                                 onDeviceCoachStatus = OnDeviceCoachStatus.DOWNLOADABLE,
                                 errorMessage = "Download failed, please retry later",
+                                canRetryAiRequest = false
                             )
                         }
                     }
@@ -259,7 +297,6 @@ class AiCoachViewModel @Inject constructor(
                     it.copy(
                         speakingReply = intent.text,
                         micInput = null,
-                        errorMessage = null,
                     )
                 }
             }
@@ -279,7 +316,6 @@ class AiCoachViewModel @Inject constructor(
                 _aiCoachUiState.update {
                     it.copy(
                         speakingReply = null,
-                        errorMessage = null,
                         isRecognizing = true
                     )
                 }
@@ -299,8 +335,23 @@ class AiCoachViewModel @Inject constructor(
                 _aiCoachUiState.update {
                     it.copy(
                         errorMessage = "Microphone permission is required for voice input.",
+                        canRetryAiRequest = false
                     )
                 }
+            }
+
+            AiCoachIntent.RetryClicked -> {
+                val coachRequest = retryableCoachRequest ?: return
+                if (_aiCoachUiState.value.isLoading) return
+                _streamingReply.value = null
+                _aiCoachUiState.update {
+                    it.copy(
+                        isLoading = true,
+                        errorMessage = null,
+                        canRetryAiRequest = false
+                    )
+                }
+                requestCoachReply(coachRequest)
             }
         }
     }
@@ -327,7 +378,8 @@ class AiCoachViewModel @Inject constructor(
                 _aiCoachUiState.update {
                     it.copy(
                         isSigningIn = false,
-                        errorMessage = "Google sign-in failed. Please try again."
+                        errorMessage = "Google sign-in failed. Please try again.",
+                        canRetryAiRequest = false
                     )
                 }
             }
