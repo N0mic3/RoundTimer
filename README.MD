@@ -27,6 +27,8 @@ The app applies MVVM and Clean Architecture principles with Hilt dependency inje
 - Generate on-device AI Coach replies with the ML Kit GenAI Prompt API on compatible devices.
 - Check whether the on-device model is available, downloadable, downloading, or unsupported, and let eligible users download it in the app.
 - Stream on-device reply text into the chat while it is generated, then save the completed reply to the conversation.
+- Cancel an in-flight AI request and reset the chat session when switching between Cloud and On-device modes.
+- Offer Retry only for failed AI-generation requests; prevent retry actions for sign-in, microphone, and on-device model-status errors.
 - Read completed AI Coach replies aloud with Android's built-in Text-to-Speech engine.
 - Provide per-reply Play aloud, Stop, and replay controls; reset playback UI when speech completes or fails.
 - Accept AI Coach questions through typed or spoken input using Android `SpeechRecognizer`.
@@ -58,6 +60,8 @@ Gemini Developer API       Streamed AI response
 Cloud mode sends only the user message. The Firebase Function validates the Firebase user, verifies the authorized UID, retrieves the Gemini API key from Secret Manager, and returns only the generated reply.
 
 On-device mode does not call the Firebase backend. It checks the ML Kit model status before generation, supports an in-app download when the model is downloadable, and emits generating, partial-response, completed, and error states. Devices without the required on-device capability show a clear unavailable state.
+
+`CoachEngineCoordinator` selects the requested engine without exposing concrete Cloud or ML Kit implementations to the ViewModel. The ViewModel keeps the active generation as a cancellable coroutine job: switching modes cancels the old job, clears any streamed partial reply, removes stale retry state, and starts a fresh visible chat session while preserving the user's unsent draft.
 
 For either AI mode, `CoachTextToSpeechController` keeps the ViewModel independent of Android's `TextToSpeech` API. The Android implementation reports start, completion, and error callbacks through `SharedFlow`, allowing the UI to reset the active reply's playback controls when speech ends.
 
@@ -142,11 +146,12 @@ The workflow:
 5. Pause, resume, or reset whenever needed.
 6. After the final work interval, the timer shows **Done**.
 7. Optionally save the selected configuration as a named timer preset.
-8. Choose **Cloud** or **On-device** AI Coach mode, then receive a focus suggestion based on your available time and goal.
+8. Choose **Cloud** or **On-device** AI Coach mode. Switching modes starts a new chat session and cancels any reply that is still generating, while preserving an unsent draft.
 9. In on-device mode, download the model from the app first if it is available for download on the current device.
-10. Play, stop, or replay a completed AI Coach reply using Android text-to-speech.
-11. Optionally speak a coaching question; review or edit its transcript before sending it.
-12. Enable the optional daily focus reminder from Settings to receive a notification approximately 24 hours later.
+10. If an AI-generation request fails, tap **Retry** to repeat the same request without adding a duplicate user message.
+11. Play, stop, or replay a completed AI Coach reply using Android text-to-speech.
+12. Optionally speak a coaching question; review or edit its transcript before sending it.
+13. Enable the optional daily focus reminder from Settings to receive a notification approximately 24 hours later.
 
 ## Getting Started
 
